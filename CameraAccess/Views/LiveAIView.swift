@@ -4,6 +4,7 @@
  */
 
 import SwiftUI
+import Speech
 
 struct LiveAIView: View {
     @StateObject private var viewModel: OmniRealtimeViewModel
@@ -11,6 +12,7 @@ struct LiveAIView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showConversation = true // 控制对话内容显示/隐藏
     @State private var frameTimer: Timer?
+    @StateObject private var wakeListener = WakePhraseListener()
 
     init(streamViewModel: StreamSessionViewModel, apiKey: String) {
         self.streamViewModel = streamViewModel
@@ -105,8 +107,13 @@ struct LiveAIView: View {
                 await streamViewModel.handleStartStreaming()
             }
 
-            // 自动连接并开始录音
-            viewModel.connect()
+            if UserDefaults.standard.bool(forKey: "liveai_wake_enabled") {
+                wakeListener.start {
+                    viewModel.connect()
+                }
+            } else {
+                viewModel.connect()
+            }
 
             // 更新视频帧
             frameTimer?.invalidate()
@@ -121,6 +128,7 @@ struct LiveAIView: View {
             print("🎥 LiveAIView: 停止 AI 对话和视频流")
             frameTimer?.invalidate()
             frameTimer = nil
+            wakeListener.stop()
             viewModel.disconnect()
             Task {
                 if streamViewModel.streamingStatus != .stopped {
@@ -195,6 +203,20 @@ struct LiveAIView: View {
 
     private var controlsView: some View {
         VStack(spacing: AppSpacing.md) {
+            if wakeListener.isListening {
+                Text("Say Hey Turbo to start")
+                    .foregroundColor(.white)
+                Button("Start now") {
+                    wakeListener.stop()
+                    viewModel.connect()
+                }
+                .foregroundColor(.white)
+            }
+            if let error = wakeListener.errorMessage {
+                Text(error).foregroundColor(.orange)
+                Button("Start now") { viewModel.connect() }
+                    .foregroundColor(.white)
+            }
             // Recording status
             HStack(spacing: AppSpacing.sm) {
                 if viewModel.isRecording {
@@ -289,5 +311,86 @@ struct LiveAIView: View {
             .padding(.horizontal, AppSpacing.xl)
             .padding(.bottom, AppSpacing.xl)
         }
+    }
+}
+
+@MainActor
+final class WakePhraseListener: ObservableObject {
+    @Published private(set) var isListening = false
+    @Published private(set) var errorMessage: String?
+
+    private let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
+    private var engine: AVAudioEngine?
+    private var request: SFSpeechAudioBufferRecognitionRequest?
+    private var recognitionTask: SFSpeechRecognitionTask?
+    private var isActive = false
+
+    func start(onDetected: @escaping () -> Void) {
+        errorMessage = nil
+        isActive = true
+        SFSpeechRecognizer.requestAuthorization { [weak self] status in
+            Task { @MainActor in
+                guard let self, self.isActive else { return }
+                guard status == .authorized,
+                      let recognizer = self.recognizer,
+                      recognizer.isAvailable,
+                      recognizer.supportsOnDeviceRecognition else {
+                    self.errorMessage = "On-device speech recognition is unavailable. Tap Start now."
+                    return
+                }
+                self.beginRecognition(recognizer: recognizer, onDetected: onDetected)
+            }
+        }
+    }
+
+    private func beginRecognition(recognizer: SFSpeechRecognizer, onDetected: @escaping () -> Void) {
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playAndRecord, mode: .default, options: [.allowBluetooth, .allowBluetoothA2DP])
+            try session.setActive(true)
+            let engine = AVAudioEngine()
+            let request = SFSpeechAudioBufferRecognitionRequest()
+            request.shouldReportPartialResults = true
+            request.requiresOnDeviceRecognition = true
+            let input = engine.inputNode
+            input.installTap(onBus: 0, bufferSize: 1024, format: input.outputFormat(forBus: 0)) { buffer, _ in
+                request.append(buffer)
+            }
+            self.engine = engine
+            self.request = request
+            recognitionTask = recognizer.recognitionTask(with: request) { [weak self] result, error in
+                Task { @MainActor in
+                    guard let self, self.isListening else { return }
+                    if let text = result?.bestTranscription.formattedString.lowercased(),
+                       text.contains("hey turbo") {
+                        self.stop()
+                        onDetected()
+                    } else if error != nil {
+                        self.stop()
+                        self.errorMessage = "Wake phrase listening stopped. Tap Start now."
+                    }
+                }
+            }
+            engine.prepare()
+            try engine.start()
+            isListening = true
+        } catch {
+            stop()
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func stop() {
+        isActive = false
+        if let engine {
+            engine.inputNode.removeTap(onBus: 0)
+            engine.stop()
+        }
+        request?.endAudio()
+        recognitionTask?.cancel()
+        recognitionTask = nil
+        request = nil
+        engine = nil
+        isListening = false
     }
 }

@@ -80,34 +80,44 @@ enum APIProvider: String, CaseIterable, Codable {
 // MARK: - Live AI Provider Enum
 
 enum LiveAIProvider: String, CaseIterable, Codable {
+    case automatic = "automatic"
     case alibaba = "alibaba"
     case google = "google"
+    case openai = "openai"
 
     var displayName: String {
         switch self {
+        case .automatic: return "AI Router (Auto)"
         case .alibaba: return "阿里云 Qwen Omni"
         case .google: return "Google Gemini Live"
+        case .openai: return "OpenAI Realtime"
         }
     }
 
     var defaultModel: String {
         switch self {
+        case .automatic: return "auto"
         case .alibaba: return "qwen3-omni-flash-realtime"
         case .google: return "gemini-2.0-flash-exp"
+        case .openai: return "gpt-realtime"
         }
     }
 
     var apiKeyHelpURL: String {
         switch self {
+        case .automatic: return "https://platform.openai.com/api-keys"
         case .alibaba: return "https://help.aliyun.com/zh/model-studio/get-api-key"
         case .google: return "https://aistudio.google.com/apikey"
+        case .openai: return "https://platform.openai.com/api-keys"
         }
     }
 
     func websocketURL(endpoint: AlibabaEndpoint = .beijing) -> String {
         switch self {
+        case .automatic: return ""
         case .alibaba: return endpoint.websocketURL
         case .google: return "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent"
+        case .openai: return "wss://api.openai.com/v1/realtime"
         }
     }
 }
@@ -262,12 +272,27 @@ class APIProviderManager: ObservableObject {
     }
 
     var liveAIAPIKey: String {
-        switch liveAIProvider {
+        switch resolvedLiveAIProvider {
+        case .automatic: return ""
         case .alibaba:
             return APIKeyManager.shared.getAPIKey(for: .alibaba, endpoint: alibabaEndpoint) ?? ""
         case .google:
             return APIKeyManager.shared.getGoogleAPIKey() ?? ""
+        case .openai:
+            return APIKeyManager.shared.getOpenAIAPIKey() ?? ""
         }
+    }
+
+    var resolvedLiveAIProvider: LiveAIProvider {
+        Self.resolveLiveAIProvider(liveAIProvider, endpoint: alibabaEndpoint)
+    }
+
+    nonisolated static func resolveLiveAIProvider(_ selected: LiveAIProvider, endpoint: AlibabaEndpoint = APIProviderManager.staticAlibabaEndpoint) -> LiveAIProvider {
+        guard selected == .automatic else { return selected }
+        if APIKeyManager.shared.hasOpenAIAPIKey() { return .openai }
+        if APIKeyManager.shared.hasAPIKey(for: .alibaba, endpoint: endpoint) { return .alibaba }
+        if APIKeyManager.shared.hasGoogleAPIKey() { return .google }
+        return .openai
     }
 
     var hasLiveAIAPIKey: Bool {
@@ -379,12 +404,19 @@ extension APIProviderManager {
     }
 
     nonisolated static var staticLiveAIAPIKey: String {
-        switch staticLiveAIProvider {
+        switch staticResolvedLiveAIProvider {
+        case .automatic: return ""
         case .alibaba:
             return APIKeyManager.shared.getAPIKey(for: .alibaba, endpoint: staticAlibabaEndpoint) ?? ""
         case .google:
             return APIKeyManager.shared.getGoogleAPIKey() ?? ""
+        case .openai:
+            return APIKeyManager.shared.getOpenAIAPIKey() ?? ""
         }
+    }
+
+    nonisolated static var staticResolvedLiveAIProvider: LiveAIProvider {
+        resolveLiveAIProvider(staticLiveAIProvider)
     }
 
     nonisolated static var staticCurrentModel: String {
@@ -404,6 +436,6 @@ extension APIProviderManager {
     }
 
     nonisolated static var staticLiveAIWebsocketURL: String {
-        return staticLiveAIProvider.websocketURL(endpoint: staticAlibabaEndpoint)
+        return staticResolvedLiveAIProvider.websocketURL(endpoint: staticAlibabaEndpoint)
     }
 }

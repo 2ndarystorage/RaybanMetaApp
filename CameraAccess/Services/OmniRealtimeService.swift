@@ -44,6 +44,7 @@ class OmniRealtimeService: NSObject {
 
     // Configuration
     private let apiKey: String
+    private let provider: LiveAIProvider
     private let model = "qwen3-omni-flash-realtime"
     // 根据用户设置的区域动态获取 WebSocket URL（北京/新加坡）
     private var baseURL: String {
@@ -84,8 +85,11 @@ class OmniRealtimeService: NSObject {
     private var hasAudioBeenSent = false
     private var eventIdCounter = 0
 
-    init(apiKey: String) {
+    var onFunctionCall: ((String, [String: Any]) -> [String: Any])?
+
+    init(apiKey: String, provider: LiveAIProvider = .alibaba) {
         self.apiKey = apiKey
+        self.provider = provider
         super.init()
         setupAudioEngine()
     }
@@ -147,7 +151,9 @@ class OmniRealtimeService: NSObject {
     // MARK: - WebSocket Connection
 
     func connect() {
-        let urlString = "\(baseURL)?model=\(model)"
+        let urlString = provider == .openai
+            ? "wss://api.openai.com/v1/realtime?model=\(provider.defaultModel)"
+            : "\(baseURL)?model=\(model)"
         print("🔌 [Omni] 准备连接 WebSocket: \(urlString)")
 
         guard let url = URL(string: urlString) else {
@@ -182,6 +188,32 @@ class OmniRealtimeService: NSObject {
     // MARK: - Session Configuration
 
     private func configureSession() {
+        if provider == .openai {
+            sendEvent([
+                "type": "session.update",
+                "session": [
+                    "type": "realtime",
+                    "output_modalities": ["audio"],
+                    "instructions": LiveAIModeManager.staticSystemPrompt,
+                    "audio": [
+                        "input": ["format": ["type": "audio/pcm", "rate": 24000],
+                                  "turn_detection": ["type": "server_vad"],
+                                  "transcription": ["model": "gpt-4o-mini-transcribe"]],
+                        "output": ["format": ["type": "audio/pcm", "rate": 24000], "voice": "marin"]
+                    ],
+                    "tools": [
+                        ["type": "function", "name": "get_current_time",
+                         "description": "Get the current local time on the user's phone.",
+                         "parameters": ["type": "object", "properties": [String: Any]()]],
+                        ["type": "function", "name": "get_camera_frame_status",
+                         "description": "Check whether a recent camera frame is available.",
+                         "parameters": ["type": "object", "properties": [String: Any]()]]
+                    ],
+                    "tool_choice": "auto"
+                ]
+            ])
+            return
+        }
         // 根据当前语言设置获取语音和提示词
         let voice = LanguageManager.staticTtsVoice
         let instructions = LiveAIModeManager.staticSystemPrompt
@@ -267,12 +299,34 @@ class OmniRealtimeService: NSObject {
     }
 
     private func processAudioBuffer(_ buffer: AVAudioPCMBuffer) {
+        let sourceBuffer: AVAudioPCMBuffer
+        if provider == .openai && (buffer.format.sampleRate != 24000 ||
+                                   buffer.format.channelCount != 1 ||
+                                   buffer.format.commonFormat != .pcmFormatFloat32) {
+            guard let targetFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 24000,
+                                                   channels: 1, interleaved: false),
+                  let converter = AVAudioConverter(from: buffer.format, to: targetFormat),
+                  let converted = AVAudioPCMBuffer(pcmFormat: targetFormat,
+                                                   frameCapacity: AVAudioFrameCount(Double(buffer.frameLength) * 24000 / buffer.format.sampleRate) + 32) else { return }
+            var provided = false
+            var error: NSError?
+            converter.convert(to: converted, error: &error) { _, status in
+                if provided { status.pointee = .noDataNow; return nil }
+                provided = true
+                status.pointee = .haveData
+                return buffer
+            }
+            guard error == nil, converted.frameLength > 0 else { return }
+            sourceBuffer = converted
+        } else {
+            sourceBuffer = buffer
+        }
         // Convert Float32 audio to PCM16 format
-        guard let floatChannelData = buffer.floatChannelData else {
+        guard let floatChannelData = sourceBuffer.floatChannelData else {
             return
         }
 
-        let frameLength = Int(buffer.frameLength)
+        let frameLength = Int(sourceBuffer.frameLength)
         let channel = floatChannelData.pointee
 
         // Convert Float32 (-1.0 to 1.0) to Int16 (-32768 to 32767)
@@ -332,6 +386,15 @@ class OmniRealtimeService: NSObject {
         }
         let base64Image = imageData.base64EncodedString()
 
+        if provider == .openai {
+            sendEvent(["type": "conversation.item.create", "item": [
+                "type": "message", "role": "user", "content": [[
+                    "type": "input_image", "image_url": "data:image/jpeg;base64,\(base64Image)"
+                ]]
+            ]])
+            return
+        }
+
         print("📸 [Omni] 发送图片: \(imageData.count) bytes")
 
         let event: [String: Any] = [
@@ -390,10 +453,41 @@ class OmniRealtimeService: NSObject {
             guard let self else { return }
 
             switch type {
+            case "response.output_audio_transcript.delta":
+                if let delta = json["delta"] as? String { self.onTranscriptDelta?(delta) }
+            case "response.output_audio_transcript.done":
+                self.onTranscriptDone?(json["transcript"] as? String ?? "")
+            case "response.output_audio.delta":
+                if let encoded = json["delta"] as? String, let audio = Data(base64Encoded: encoded) {
+                    self.onAudioDelta?(audio)
+                    self.playAudio(audio)
+                }
+            case "response.output_audio.done":
+                self.onAudioDone?()
+            case "response.output_item.done":
+                if let item = json["item"] as? [String: Any],
+                   item["type"] as? String == "function_call",
+                   let name = item["name"] as? String,
+                   let callId = item["call_id"] as? String {
+                    let rawArguments = item["arguments"] as? String ?? "{}"
+                    let arguments = (rawArguments.data(using: .utf8).flatMap {
+                        try? JSONSerialization.jsonObject(with: $0) as? [String: Any]
+                    }) ?? [:]
+                    let result = self.onFunctionCall?(name, arguments) ?? ["error": "Tool unavailable"]
+                    if let output = try? JSONSerialization.data(withJSONObject: result),
+                       let outputString = String(data: output, encoding: .utf8) {
+                        self.sendEvent(["type": "conversation.item.create", "item": [
+                            "type": "function_call_output", "call_id": callId, "output": outputString
+                        ]])
+                        self.sendEvent(["type": "response.create"])
+                    }
+                }
             case OmniServerEvent.sessionCreated.rawValue,
                  OmniServerEvent.sessionUpdated.rawValue:
                 print("✅ [Omni] 会话已建立")
-                self.onConnected?()
+                if self.provider != .openai || type == OmniServerEvent.sessionUpdated.rawValue {
+                    self.onConnected?()
+                }
 
             case OmniServerEvent.inputAudioBufferSpeechStarted.rawValue:
                 print("🎤 [Omni] 检测到语音开始")

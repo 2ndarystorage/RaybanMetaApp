@@ -31,15 +31,18 @@ class OmniRealtimeViewModel: ObservableObject {
     private var isImageSendingEnabled = false // 是否已启用图片发送（第一次音频后）
 
     init(apiKey: String) {
-        self.apiKey = apiKey
-        self.provider = APIProviderManager.staticLiveAIProvider
+        self.provider = APIProviderManager.staticResolvedLiveAIProvider
+        let selectedKey = APIProviderManager.staticLiveAIAPIKey
+        self.apiKey = selectedKey.isEmpty && provider == .alibaba ? apiKey : selectedKey
 
         // Initialize appropriate service based on provider
         switch provider {
-        case .alibaba:
-            self.omniService = OmniRealtimeService(apiKey: apiKey)
+        case .alibaba, .openai:
+            self.omniService = OmniRealtimeService(apiKey: self.apiKey, provider: provider)
         case .google:
-            self.geminiService = GeminiLiveService(apiKey: apiKey)
+            self.geminiService = GeminiLiveService(apiKey: self.apiKey)
+        case .automatic:
+            break
         }
 
         setupCallbacks()
@@ -49,15 +52,29 @@ class OmniRealtimeViewModel: ObservableObject {
 
     private func setupCallbacks() {
         switch provider {
-        case .alibaba:
+        case .alibaba, .openai:
             setupOmniCallbacks()
         case .google:
             setupGeminiCallbacks()
+        case .automatic:
+            break
         }
     }
 
     private func setupOmniCallbacks() {
         guard let omniService = omniService else { return }
+
+        omniService.onFunctionCall = { [weak self] name, _ in
+            switch name {
+            case "get_current_time":
+                return ["local_time": ISO8601DateFormatter().string(from: Date()),
+                        "time_zone": TimeZone.current.identifier]
+            case "get_camera_frame_status":
+                return ["camera_frame_available": self?.currentVideoFrame != nil]
+            default:
+                return ["error": "Unsupported function"]
+            }
+        }
 
         omniService.onConnected = { [weak self] in
             Task { @MainActor in
@@ -229,11 +246,18 @@ class OmniRealtimeViewModel: ObservableObject {
     // MARK: - Connection
 
     func connect() {
+        guard !apiKey.isEmpty else {
+            errorMessage = "Configure the selected Live AI provider's API key in Settings."
+            showError = true
+            return
+        }
         switch provider {
-        case .alibaba:
+        case .alibaba, .openai:
             omniService?.connect()
         case .google:
             geminiService?.connect()
+        case .automatic:
+            break
         }
     }
 
@@ -244,10 +268,12 @@ class OmniRealtimeViewModel: ObservableObject {
         stopRecording()
 
         switch provider {
-        case .alibaba:
+        case .alibaba, .openai:
             omniService?.disconnect()
         case .google:
             geminiService?.disconnect()
+        case .automatic:
+            break
         }
 
         isConnected = false
@@ -267,6 +293,10 @@ class OmniRealtimeViewModel: ObservableObject {
             aiModel = "qwen3-omni-flash-realtime"
         case .google:
             aiModel = "gemini-2.0-flash-exp"
+        case .openai:
+            aiModel = provider.defaultModel
+        case .automatic:
+            aiModel = "auto"
         }
 
         let record = ConversationRecord(
@@ -292,10 +322,12 @@ class OmniRealtimeViewModel: ObservableObject {
         print("🎤 [LiveAI] 开始录音（语音触发模式）- Provider: \(provider.displayName)")
 
         switch provider {
-        case .alibaba:
+        case .alibaba, .openai:
             omniService?.startRecording()
         case .google:
             geminiService?.startRecording()
+        case .automatic:
+            break
         }
 
         isRecording = true
@@ -305,10 +337,12 @@ class OmniRealtimeViewModel: ObservableObject {
         print("🛑 [LiveAI] 停止录音")
 
         switch provider {
-        case .alibaba:
+        case .alibaba, .openai:
             omniService?.stopRecording()
         case .google:
             geminiService?.stopRecording()
+        case .automatic:
+            break
         }
 
         isRecording = false

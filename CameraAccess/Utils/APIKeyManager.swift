@@ -17,6 +17,7 @@ class APIKeyManager {
     private let alibabaSingaporeAccount = "alibaba-singapore-api-key"
     private let openrouterAccount = "openrouter-api-key"
     private let googleAccount = "google-api-key"
+    private let openAIAccount = "openai-api-key"
     private let legacyAccount = "qwen-api-key" // For backward compatibility (migrates to Beijing)
     private let legacyAlibabaAccount = "alibaba-api-key" // Old format (migrates to Beijing)
 
@@ -83,6 +84,11 @@ class APIKeyManager {
     func hasGoogleAPIKey() -> Bool {
         return getGoogleAPIKey() != nil
     }
+
+    func saveOpenAIAPIKey(_ key: String) -> Bool { saveKey(key, for: openAIAccount) }
+    func getOpenAIAPIKey() -> String? { getKey(for: openAIAccount) }
+    func deleteOpenAIAPIKey() -> Bool { deleteKey(for: openAIAccount) }
+    func hasOpenAIAPIKey() -> Bool { getOpenAIAPIKey() != nil }
 
     // MARK: - Backward Compatible Methods (defaults to current provider)
 

@@ -1,5 +1,33 @@
 # TurboMeta - RayBan Meta Smart Glasses AI Assistant
 
+## TurboMeta AI Additions (iOS)
+
+This fork adds four opt-in features to iOS Live AI. Existing Qwen and Gemini modes remain selectable. Android retains its existing Qwen/Gemini and Porcupine wake-word features; the new OpenAI Realtime, function tools, and automatic router are currently iOS only.
+
+| Feature | Behavior |
+| --- | --- |
+| OpenAI Realtime | Streams 24 kHz PCM audio, plays generated speech, shows transcripts, and sends a camera frame when speech starts. |
+| Wake phrase | Optional on-device recognition listens for “Hey Turbo” in the foreground Live AI screen, then starts the selected provider. “Start now” remains available. |
+| Function calling | OpenAI can call `get_current_time` and `get_camera_frame_status`, returning read-only results to the same session. |
+| AI Router | Auto selects the first configured key: OpenAI, Qwen (selected region), then Gemini. Selection occurs at session start. |
+
+### Setup
+
+1. Build the iOS app with Xcode using the existing Meta DAT credentials and pairing steps below.
+2. In Settings → Live AI Provider, select **OpenAI Realtime** or **AI Router (Auto)**. Existing installs retain Qwen by default.
+3. In Settings → OpenAI API Key, save your key. It is stored in iOS Keychain. For Auto, configure one or more provider keys; Qwen keys are region-specific and Gemini has its own key.
+4. Optionally enable **Wake phrase: Hey Turbo** in Settings. Allow microphone and speech recognition access, connect the glasses, and open Live AI. Say “Hey Turbo” or tap **Start now**.
+
+### Requirements and limitations
+
+- OpenAI Realtime requires a project key with `gpt-realtime` access and an internet connection. Audio and images sent to OpenAI may incur charges. See [OpenAI API keys](https://platform.openai.com/api-keys).
+- The wake phrase uses Apple's on-device `SFSpeechRecognizer` for `en-US` only when available. It listens only while Live AI is in the foreground and stops before the AI audio session starts. It is not a system-wide or background hotword.
+- Auto routes by configured keys at session start. It does not switch mid-conversation or automatically recover from connection errors.
+- Function calling is limited to the two listed read-only tools; no arbitrary device or account actions are exposed.
+- For a distributed production app, use a trusted backend with short-lived client credentials instead of a shared API key in the app.
+- Camera input requires a connected glasses device and the existing Meta DAT setup. These new features do not yet have iOS/Android parity.
+
+
 <div align="center">
 
 <img src="./rayban.png" width="120" alt="TurboMeta Logo"/>

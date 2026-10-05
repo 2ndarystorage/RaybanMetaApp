@@ -57,6 +57,8 @@
 	<string>Needed to connect to Meta AI Glasses</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>TurboMeta 需要访问麦克风以实现与智能眼镜的实时语音对话功能。</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>TurboMeta uses speech recognition to listen for the optional Hey Turbo wake phrase while the app is open.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>TurboMeta 需要访问相册以保存从智能眼镜拍摄的照片。</string>
 	<key>NSSiriUsageDescription</key>

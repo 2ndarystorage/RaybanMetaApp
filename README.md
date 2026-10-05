@@ -1,5 +1,10 @@
 # TurboMeta - RayBan Meta 智能眼镜 AI 助手
 
+## AI Additions (iOS)
+
+This fork adds OpenAI Realtime, an optional foreground “Hey Turbo” wake phrase, two read-only function tools, and an automatic provider router to iOS Live AI. See [README_EN.md](README_EN.md#turbometa-ai-additions-ios) for setup, required keys, and limitations. Existing Qwen and Gemini choices remain available. Android's existing Porcupine wake-word feature is unchanged; the other new features are iOS only.
+
+
 <div align="center">
 
 <img src="./rayban.png" width="120" alt="TurboMeta Logo"/>

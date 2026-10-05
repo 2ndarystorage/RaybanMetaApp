@@ -20,6 +20,7 @@ struct SettingsView: View {
     @State private var showQualitySettings = false
     @State private var showLiveAIProviderSettings = false
     @State private var showGoogleAPIKeySettings = false
+    @State private var showOpenAIAPIKeySettings = false
     @State private var showQuickVisionSettings = false
     @State private var showLiveAISettings = false
     @State private var showLiveTranslateSettings = false
@@ -266,6 +267,23 @@ struct SettingsView: View {
                         }
                     }
 
+                    Button {
+                        showOpenAIAPIKeySettings = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "key.fill")
+                            Text("OpenAI API Key")
+                            Spacer()
+                            Text(APIKeyManager.shared.hasOpenAIAPIKey() ? "Configured" : "Not configured")
+                                .font(AppTypography.caption)
+                        }
+                    }
+
+                    Toggle("Wake phrase: Hey Turbo", isOn: Binding(
+                        get: { UserDefaults.standard.bool(forKey: "liveai_wake_enabled") },
+                        set: { UserDefaults.standard.set($0, forKey: "liveai_wake_enabled") }
+                    ))
+
                     // Live AI Mode Settings
                     Button {
                         showLiveAISettings = true
@@ -376,6 +394,9 @@ struct SettingsView: View {
             }
             .sheet(isPresented: $showLiveAIProviderSettings) {
                 LiveAIProviderSettingsView()
+            }
+            .sheet(isPresented: $showOpenAIAPIKeySettings) {
+                OpenAIAPIKeySettingsView()
             }
             .sheet(isPresented: $showGoogleAPIKeySettings) {
                 GoogleAPIKeySettingsView()
@@ -1132,10 +1153,44 @@ struct LiveAIProviderSettingsView: View {
 
     private func liveAIProviderDescription(_ provider: LiveAIProvider) -> String {
         switch provider {
+        case .automatic:
+            return "OpenAI → Qwen → Gemini (configured keys)"
         case .alibaba:
             return "settings.liveai.alibaba.desc".localized
         case .google:
             return "settings.liveai.google.desc".localized
+        case .openai:
+            return "OpenAI speech, vision and on-device function tools"
+        }
+    }
+}
+
+struct OpenAIAPIKeySettingsView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var apiKey = ""
+    @State private var saved = false
+
+    var body: some View {
+        NavigationView {
+            Form {
+                SecureField("OpenAI API Key", text: $apiKey)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                Link("Get API key", destination: URL(string: "https://platform.openai.com/api-keys")!)
+                Button("Save") {
+                    saved = APIKeyManager.shared.saveOpenAIAPIKey(apiKey.trimmingCharacters(in: .whitespacesAndNewlines))
+                }
+                .disabled(apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                if APIKeyManager.shared.hasOpenAIAPIKey() {
+                    Button("Delete key", role: .destructive) {
+                        _ = APIKeyManager.shared.deleteOpenAIAPIKey()
+                        apiKey = ""
+                    }
+                }
+            }
+            .navigationTitle("OpenAI API Key")
+            .toolbar { Button("Done") { dismiss() } }
+            .alert("Key saved", isPresented: $saved) { Button("OK") { dismiss() } }
         }
     }
 }
