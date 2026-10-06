@@ -41,7 +41,7 @@ This fork adds four opt-in features to iOS Live AI. Existing Qwen and Gemini mod
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-☕-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/turbo1123)
 
-[English](./README_EN.md) | [简体中文](./README.md)
+[日本語](./README.md) | [English](./README_EN.md) | [简体中文](./README_ZH.md)
 
 </div>
 
