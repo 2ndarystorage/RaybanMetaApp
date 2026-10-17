@@ -17,11 +17,7 @@ class LiveTranslateService: NSObject {
 
     // Configuration
     private let apiKey: String
-    private let model = "qwen3-livetranslate-flash-realtime"
-    // 根据用户设置的区域动态获取 WebSocket URL
-    private var baseURL: String {
-        return APIProviderManager.staticLiveAIWebsocketURL
-    }
+    private let endpoint = "wss://api.openai.com/v1/realtime/translations?model=gpt-realtime-translate"
 
     // Audio Engine (for recording)
     private var audioEngine: AVAudioEngine?
@@ -40,19 +36,18 @@ class LiveTranslateService: NSObject {
     private var isPlaybackEngineRunning = false
 
     // Translation settings
-    private var sourceLanguage: TranslateLanguage = .en
     private var targetLanguage: TranslateLanguage = .zh
-    private var voice: TranslateVoice = .cherry
     private var audioOutputEnabled = true
 
     // Audio resampling
     private var audioConverter: AVAudioConverter?
-    private let targetSampleRate: Double = 16000  // API expects 16kHz
+    private let targetSampleRate: Double = 24000
 
     // Callbacks
     var onConnected: (() -> Void)?
     var onTranslationText: ((String) -> Void)?    // 翻译结果文本
     var onTranslationDelta: ((String) -> Void)?   // 增量翻译文本
+    var onOriginalDelta: ((String) -> Void)?
     var onAudioDelta: ((Data) -> Void)?
     var onAudioDone: (() -> Void)?
     var onError: ((String) -> Void)?
@@ -60,10 +55,6 @@ class LiveTranslateService: NSObject {
     // State
     private var isRecording = false
     private var eventIdCounter = 0
-
-    // Image sending
-    private var lastImageSendTime: Date?
-    private let imageInterval: TimeInterval = 0.5  // 每0.5秒最多发送一张图片
 
     init(apiKey: String) {
         self.apiKey = apiKey
@@ -121,7 +112,7 @@ class LiveTranslateService: NSObject {
     // MARK: - WebSocket Connection
 
     func connect() {
-        let urlString = "\(baseURL)?model=\(model)"
+        let urlString = endpoint
         print("🔌 [Translate] 准备连接 WebSocket: \(urlString)")
 
         guard let url = URL(string: urlString) else {
@@ -156,14 +147,10 @@ class LiveTranslateService: NSObject {
     // MARK: - Configuration
 
     func updateSettings(
-        sourceLanguage: TranslateLanguage,
         targetLanguage: TranslateLanguage,
-        voice: TranslateVoice,
         audioEnabled: Bool
     ) {
-        self.sourceLanguage = sourceLanguage
         self.targetLanguage = targetLanguage
-        self.voice = voice
         self.audioOutputEnabled = audioEnabled
 
         // 如果已连接，重新配置会话
@@ -173,36 +160,18 @@ class LiveTranslateService: NSObject {
     }
 
     private func configureSession() {
-        var modalities: [String] = ["text"]
-        if audioOutputEnabled {
-            modalities.append("audio")
-        }
-
         let sessionConfig: [String: Any] = [
             "event_id": generateEventId(),
             "type": TranslateClientEvent.sessionUpdate.rawValue,
             "session": [
-                "modalities": modalities,
-                "voice": voice.rawValue,
-                "input_audio_format": "pcm16",
-                "output_audio_format": "pcm24",
-                "input_audio_transcription": [
-                    "language": sourceLanguage.rawValue
-                ],
-                "translation": [
-                    "language": targetLanguage.rawValue
-                ],
-                "turn_detection": [
-                    "type": "server_vad",
-                    "threshold": 0.5,
-                    "prefix_padding_ms": 300,
-                    "silence_duration_ms": 500
+                "audio": [
+                    "output": ["language": targetLanguage.rawValue]
                 ]
             ]
         ]
 
         sendEvent(sessionConfig)
-        print("📤 [Translate] 配置会话: \(sourceLanguage.rawValue) → \(targetLanguage.rawValue), 音色: \(voice.rawValue)")
+        print("📤 [Translate] 翻訳先: \(targetLanguage.rawValue)")
     }
 
     // MARK: - Audio Recording
@@ -281,11 +250,11 @@ class LiveTranslateService: NSObject {
     }
 
     private func processAudioBuffer(_ buffer: AVAudioPCMBuffer) {
-        guard let floatChannelData = buffer.floatChannelData else { return }
+        guard buffer.floatChannelData != nil else { return }
 
         let inputSampleRate = buffer.format.sampleRate
 
-        // 如果采样率不是 16kHz，需要重采样
+        // API に必要な 24 kHz に変換する
         if inputSampleRate != targetSampleRate {
             guard let resampledBuffer = resampleBuffer(buffer) else {
                 return
@@ -362,38 +331,6 @@ class LiveTranslateService: NSObject {
         sendAudioAppend(base64Audio)
     }
 
-    // MARK: - Image Sending
-
-    func sendImageFrame(_ image: UIImage) {
-        // 限制发送频率：每0.5秒最多一张
-        let now = Date()
-        if let lastTime = lastImageSendTime, now.timeIntervalSince(lastTime) < imageInterval {
-            return
-        }
-        lastImageSendTime = now
-
-        guard let imageData = image.jpegData(compressionQuality: 0.6) else {
-            print("❌ [Translate] 无法压缩图片")
-            return
-        }
-
-        // 限制图片大小 500KB
-        guard imageData.count <= 500 * 1024 else {
-            print("⚠️ [Translate] 图片过大，跳过发送")
-            return
-        }
-
-        let base64Image = imageData.base64EncodedString()
-        print("📸 [Translate] 发送图片: \(imageData.count) bytes")
-
-        let event: [String: Any] = [
-            "event_id": generateEventId(),
-            "type": TranslateClientEvent.inputImageBufferAppend.rawValue,
-            "image": base64Image
-        ]
-        sendEvent(event)
-    }
-
     // MARK: - Send Events
 
     private func sendEvent(_ event: [String: Any]) {
@@ -422,7 +359,7 @@ class LiveTranslateService: NSObject {
 
         let event: [String: Any] = [
             "event_id": generateEventId(),
-            "type": TranslateClientEvent.inputAudioBufferAppend.rawValue,
+            "type": "session.input_audio_buffer.append",
             "audio": base64Audio
         ]
         sendEvent(event)
@@ -477,35 +414,31 @@ class LiveTranslateService: NSObject {
                 print("✅ [Translate] 会话已建立")
                 self.onConnected?()
 
-            case TranslateServerEvent.responseAudioTranscriptText.rawValue:
-                // 增量翻译文本
+            case "session.output_transcript.delta":
                 if let delta = json["delta"] as? String {
-                    print("💬 [Translate] 翻译片段: \(delta)")
                     self.onTranslationDelta?(delta)
                 }
 
-            case TranslateServerEvent.responseAudioTranscriptDone.rawValue:
-                // 翻译文本完成（输出音频+文本模式）
+            case "session.output_transcript.done":
                 if let text = json["text"] as? String {
-                    print("✅ [Translate] 翻译完成: \(text)")
                     self.onTranslationText?(text)
                 }
 
-            case TranslateServerEvent.responseTextDone.rawValue:
-                // 翻译文本完成（仅文本模式）
-                if let text = json["text"] as? String {
-                    print("✅ [Translate] 翻译完成(文本): \(text)")
-                    self.onTranslationText?(text)
+            case "session.input_transcript.delta":
+                if let delta = json["delta"] as? String {
+                    self.onOriginalDelta?(delta)
                 }
 
-            case TranslateServerEvent.responseAudioDelta.rawValue:
+            case "session.output_audio.delta":
                 if let base64Audio = json["delta"] as? String,
                    let audioData = Data(base64Encoded: base64Audio) {
                     self.onAudioDelta?(audioData)
-                    self.handleAudioChunk(audioData)
+                    if self.audioOutputEnabled {
+                        self.handleAudioChunk(audioData)
+                    }
                 }
 
-            case TranslateServerEvent.responseAudioDone.rawValue:
+            case "session.output_audio.done":
                 self.isCollectingAudio = false
                 if !self.audioBuffer.isEmpty {
                     self.playAudio(self.audioBuffer)

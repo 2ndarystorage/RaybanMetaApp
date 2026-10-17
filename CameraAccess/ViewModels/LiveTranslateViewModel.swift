@@ -16,7 +16,7 @@ class LiveTranslateViewModel: ObservableObject {
 
     // MARK: - Translation State
     @Published var currentTranslation = ""       // 当前翻译结果
-    @Published var currentOriginal = ""          // 当前原文（暂不支持，保留字段）
+    @Published var currentOriginal = ""
     @Published var streamingTranslation = ""     // 流式翻译片段
     @Published var translationHistory: [TranslateRecord] = []
 
@@ -25,23 +25,9 @@ class LiveTranslateViewModel: ObservableObject {
     @Published var showError = false
 
     // MARK: - Settings (持久化)
-    @Published var sourceLanguage: TranslateLanguage {
-        didSet {
-            UserDefaults.standard.set(sourceLanguage.rawValue, forKey: "translate_source_language")
-            updateServiceSettings()
-        }
-    }
-
     @Published var targetLanguage: TranslateLanguage {
         didSet {
             UserDefaults.standard.set(targetLanguage.rawValue, forKey: "translate_target_language")
-            updateServiceSettings()
-        }
-    }
-
-    @Published var selectedVoice: TranslateVoice {
-        didSet {
-            UserDefaults.standard.set(selectedVoice.rawValue, forKey: "translate_voice")
             updateServiceSettings()
         }
     }
@@ -53,12 +39,6 @@ class LiveTranslateViewModel: ObservableObject {
         }
     }
 
-    @Published var imageEnhanceEnabled: Bool {
-        didSet {
-            UserDefaults.standard.set(imageEnhanceEnabled, forKey: "translate_image_enhance")
-        }
-    }
-
     /// 使用 iPhone 麦克风（而非眼镜麦克风）
     /// 眼镜麦克风适合翻译自己说的话，iPhone 麦克风适合翻译对方说的话
     @Published var usePhoneMic: Bool {
@@ -67,35 +47,24 @@ class LiveTranslateViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Video Frame (for image enhancement)
-    var currentVideoFrame: UIImage?
-
     // MARK: - Private
     private var translateService: LiveTranslateService?
-    private var imageTimer: Timer?
 
     // MARK: - Init
 
     init() {
         // 从 UserDefaults 加载设置
-        let savedSource = UserDefaults.standard.string(forKey: "translate_source_language") ?? "en"
-        self.sourceLanguage = TranslateLanguage(rawValue: savedSource) ?? .en
-
         let savedTarget = UserDefaults.standard.string(forKey: "translate_target_language") ?? "zh"
         self.targetLanguage = TranslateLanguage(rawValue: savedTarget) ?? .zh
 
-        let savedVoice = UserDefaults.standard.string(forKey: "translate_voice") ?? "Cherry"
-        self.selectedVoice = TranslateVoice(rawValue: savedVoice) ?? .cherry
-
         self.audioOutputEnabled = UserDefaults.standard.object(forKey: "translate_audio_enabled") as? Bool ?? true
-        self.imageEnhanceEnabled = UserDefaults.standard.object(forKey: "translate_image_enhance") as? Bool ?? false
         self.usePhoneMic = UserDefaults.standard.object(forKey: "translate_use_phone_mic") as? Bool ?? false
     }
 
     // MARK: - Connection
 
     func connect() {
-        let apiKey = APIProviderManager.staticLiveAIAPIKey
+        let apiKey = APIKeyManager.shared.getOpenAIAPIKey() ?? ""
         guard !apiKey.isEmpty else {
             errorMessage = "livetranslate.error.noApiKey".localized
             showError = true
@@ -106,9 +75,7 @@ class LiveTranslateViewModel: ObservableObject {
         setupCallbacks()
 
         translateService?.updateSettings(
-            sourceLanguage: sourceLanguage,
             targetLanguage: targetLanguage,
-            voice: selectedVoice,
             audioEnabled: audioOutputEnabled
         )
 
@@ -116,7 +83,6 @@ class LiveTranslateViewModel: ObservableObject {
     }
 
     func disconnect() {
-        stopImageTimer()
         translateService?.disconnect()
         translateService = nil
         isConnected = false
@@ -137,21 +103,15 @@ class LiveTranslateViewModel: ObservableObject {
         translateService?.startRecording(usePhoneMic: usePhoneMic)
         isRecording = true
 
-        // 如果启用图像增强，开始定时发送图片
-        if imageEnhanceEnabled {
-            startImageTimer()
-        }
     }
 
     func stopRecording() {
         translateService?.stopRecording()
         isRecording = false
-        stopImageTimer()
 
         // 保存当前翻译到历史
         if !currentTranslation.isEmpty {
             let record = TranslateRecord(
-                sourceLanguage: sourceLanguage,
                 targetLanguage: targetLanguage,
                 originalText: currentOriginal,
                 translatedText: currentTranslation
@@ -163,31 +123,6 @@ class LiveTranslateViewModel: ObservableObject {
                 translationHistory = Array(translationHistory.prefix(50))
             }
         }
-    }
-
-    // MARK: - Language Swap
-
-    func swapLanguages() {
-        // 只有当两种语言都支持作为目标语言时才能交换
-        guard sourceLanguage.supportsAudioOutput && targetLanguage.supportsAudioOutput else {
-            errorMessage = "livetranslate.error.cannotSwap".localized
-            showError = true
-            return
-        }
-
-        let temp = sourceLanguage
-        sourceLanguage = targetLanguage
-        targetLanguage = temp
-
-        // 清空当前翻译
-        currentTranslation = ""
-        streamingTranslation = ""
-    }
-
-    // MARK: - Video Frame
-
-    func updateVideoFrame(_ frame: UIImage) {
-        currentVideoFrame = frame
     }
 
     // MARK: - Private Methods
@@ -202,7 +137,13 @@ class LiveTranslateViewModel: ObservableObject {
 
         translateService?.onTranslationDelta = { [weak self] delta in
             DispatchQueue.main.async {
-                self?.streamingTranslation += delta
+                self?.currentTranslation += delta
+            }
+        }
+
+        translateService?.onOriginalDelta = { [weak self] delta in
+            DispatchQueue.main.async {
+                self?.currentOriginal += delta
             }
         }
 
@@ -210,12 +151,6 @@ class LiveTranslateViewModel: ObservableObject {
             DispatchQueue.main.async {
                 self?.currentTranslation = text
                 self?.streamingTranslation = ""
-            }
-        }
-
-        translateService?.onAudioDone = { [weak self] in
-            DispatchQueue.main.async {
-                print("🔊 [TranslateVM] 音频播放完成")
             }
         }
 
@@ -229,32 +164,9 @@ class LiveTranslateViewModel: ObservableObject {
 
     private func updateServiceSettings() {
         translateService?.updateSettings(
-            sourceLanguage: sourceLanguage,
             targetLanguage: targetLanguage,
-            voice: selectedVoice,
             audioEnabled: audioOutputEnabled
         )
-    }
-
-    // MARK: - Image Timer
-
-    private func startImageTimer() {
-        stopImageTimer()
-        imageTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                self?.sendCurrentFrame()
-            }
-        }
-    }
-
-    private func stopImageTimer() {
-        imageTimer?.invalidate()
-        imageTimer = nil
-    }
-
-    private func sendCurrentFrame() {
-        guard imageEnhanceEnabled, let frame = currentVideoFrame else { return }
-        translateService?.sendImageFrame(frame)
     }
 
     // MARK: - Clear

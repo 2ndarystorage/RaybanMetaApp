@@ -47,14 +47,6 @@ struct MainAppView: View {
             // 设置 QuickVisionManager 的 StreamViewModel 引用
             quickVisionManager.setStreamViewModel(streamViewModel)
 
-            // 设置 OpenClaw Node 命令路由
-            let router = OpenClawCommandRouter(streamViewModel: streamViewModel)
-            OpenClawNodeService.shared.setCommandRouter(router)
-
-            // 如果之前启用了 OpenClaw，自动重连
-            if OpenClawNodeService.shared.isEnabled {
-              OpenClawNodeService.shared.connect()
-            }
           }
       }
     } else {

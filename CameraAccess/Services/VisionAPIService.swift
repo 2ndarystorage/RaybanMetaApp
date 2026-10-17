@@ -12,12 +12,10 @@ struct VisionAPIService {
     private let apiKey: String
     private let baseURL: String
     private let model: String
-    private let provider: APIProvider
 
     /// Initialize with explicit configuration
     init(apiKey: String, baseURL: String? = nil, model: String? = nil) {
         self.apiKey = apiKey
-        self.provider = VisionAPIConfig.provider
         self.baseURL = baseURL ?? VisionAPIConfig.baseURL
         self.model = model ?? VisionAPIConfig.model
     }

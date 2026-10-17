@@ -14,11 +14,11 @@ struct LiveAIView: View {
     @State private var frameTimer: Timer?
     @StateObject private var wakeListener = WakePhraseListener()
 
-    init(streamViewModel: StreamSessionViewModel, apiKey: String) {
+    init(streamViewModel: StreamSessionViewModel) {
         self.streamViewModel = streamViewModel
         // Use the Live AI API key based on selected provider
         let liveAIApiKey = APIProviderManager.staticLiveAIAPIKey
-        self._viewModel = StateObject(wrappedValue: OmniRealtimeViewModel(apiKey: liveAIApiKey.isEmpty ? apiKey : liveAIApiKey))
+        self._viewModel = StateObject(wrappedValue: OmniRealtimeViewModel(apiKey: liveAIApiKey))
     }
 
     var body: some View {

@@ -8,8 +8,8 @@ import UIKit
 
 class LeanEatService {
     private let apiKey: String
-    private let baseURL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
-    private let model = "qwen3-vl-plus"
+    private let baseURL = "https://api.openai.com/v1"
+    private let model = "gpt-4.1-mini"
 
     init(apiKey: String) {
         self.apiKey = apiKey
@@ -58,6 +58,9 @@ class LeanEatService {
     // MARK: - Nutrition Analysis
 
     func analyzeFood(_ image: UIImage) async throws -> FoodNutritionResponse {
+        guard !apiKey.isEmpty else {
+            throw LeanEatError.apiError(statusCode: 401, message: "設定でOpenAI APIキーを登録してください")
+        }
         // Convert image to base64
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             throw LeanEatError.invalidImage

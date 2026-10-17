@@ -10,7 +10,6 @@ struct SettingsView: View {
     @ObservedObject var streamViewModel: StreamSessionViewModel
     @ObservedObject var languageManager = LanguageManager.shared
     @ObservedObject var providerManager = APIProviderManager.shared
-    let apiKey: String
 
     @State private var showAPIKeySettings = false
     @State private var showProviderSettings = false
@@ -24,7 +23,6 @@ struct SettingsView: View {
     @State private var showQuickVisionSettings = false
     @State private var showLiveAISettings = false
     @State private var showLiveTranslateSettings = false
-    @State private var showOpenClawSettings = false
     @ObservedObject var quickVisionModeManager = QuickVisionModeManager.shared
     @ObservedObject var liveAIModeManager = LiveAIModeManager.shared
     @State private var selectedModel = "qwen3-omni-flash-realtime"
@@ -33,11 +31,6 @@ struct SettingsView: View {
     @State private var hasAPIKey = false // 改为 State 变量
     @State private var hasGoogleAPIKey = false // Google API Key 状态
     @State private var hasOpenAIAPIKey = false
-
-    init(streamViewModel: StreamSessionViewModel, apiKey: String) {
-        self.streamViewModel = streamViewModel
-        self.apiKey = apiKey
-    }
 
     // 刷新 API Key 状态
     private func refreshAPIKeyStatus() {
@@ -120,7 +113,7 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: "server.rack")
                                 .foregroundColor(AppColors.accent)
-                            Text("settings.provider".localized)
+                            Text("従来の画像AIプロバイダー設定")
                                 .foregroundColor(AppColors.textPrimary)
                             Spacer()
                             Text(providerManager.currentProvider.displayName)
@@ -138,7 +131,7 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: "cpu")
                                 .foregroundColor(AppColors.accent)
-                            Text("settings.model".localized)
+                            Text("従来の画像AIモデル設定")
                                 .foregroundColor(AppColors.textPrimary)
                             Spacer()
                             Text(providerManager.selectedModel)
@@ -175,7 +168,7 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: "key.fill")
                                 .foregroundColor(AppColors.wordLearn)
-                            Text("settings.apikey".localized)
+                            Text("Qwen / OpenRouter APIキー")
                                 .foregroundColor(AppColors.textPrimary)
                             Spacer()
                             Text(hasAPIKey ? "settings.apikey.configured".localized : "settings.apikey.notconfigured".localized)
@@ -254,7 +247,7 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: "key.fill")
                                 .foregroundColor(AppColors.primary)
-                            Text("OpenAI API Key")
+                            Text("OpenAI API Key（画像・栄養・翻訳共通）")
                                 .foregroundColor(AppColors.textPrimary)
                             Spacer()
                             Text(hasOpenAIAPIKey ? "settings.apikey.configured".localized : "settings.apikey.notconfigured".localized)
@@ -330,34 +323,6 @@ struct SettingsView: View {
                     Text("settings.liveai".localized)
                 }
 
-                // OpenClaw
-                Section {
-                    Button {
-                        showOpenClawSettings = true
-                    } label: {
-                        HStack {
-                            Image(systemName: "link.circle.fill")
-                                .foregroundColor(.purple)
-                            Text("OpenClaw")
-                                .foregroundColor(AppColors.textPrimary)
-                            Spacer()
-                            HStack(spacing: 4) {
-                                Circle()
-                                    .fill(openClawStatusColor)
-                                    .frame(width: 8, height: 8)
-                                Text(openClawStatusText)
-                                    .font(AppTypography.caption)
-                                    .foregroundColor(AppColors.textSecondary)
-                            }
-                            Image(systemName: "chevron.right")
-                                .font(AppTypography.caption)
-                                .foregroundColor(AppColors.textTertiary)
-                        }
-                    }
-                } header: {
-                    Text("settings.integrations".localized)
-                }
-
                 // 关于
                 Section {
                     InfoRow(title: "settings.version".localized, value: "2.0.0")
@@ -429,31 +394,10 @@ struct SettingsView: View {
             .sheet(isPresented: $showLiveTranslateSettings) {
                 LiveTranslateSettingsView(viewModel: LiveTranslateViewModel())
             }
-            .sheet(isPresented: $showOpenClawSettings) {
-                OpenClawSettingsView()
-            }
             .onAppear {
                 // 视图出现时刷新 API Key 状态
                 refreshAPIKeyStatus()
             }
-        }
-    }
-
-    private var openClawStatusColor: Color {
-        switch OpenClawNodeService.shared.connectionState {
-        case .connected: return .green
-        case .connecting: return .orange
-        case .waitingForPairing: return .yellow
-        default: return .gray
-        }
-    }
-
-    private var openClawStatusText: String {
-        switch OpenClawNodeService.shared.connectionState {
-        case .connected: return "openclaw.status.connected".localized
-        case .connecting: return "openclaw.status.connecting".localized
-        case .disconnected: return "openclaw.status.disconnected".localized
-        default: return "openclaw.status.disconnected".localized
         }
     }
 

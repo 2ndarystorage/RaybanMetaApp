@@ -301,15 +301,15 @@ class QuickVisionManager: ObservableObject {
         lastMode = mode
 
         // 获取 API Key
-        guard let apiKey = APIKeyManager.shared.getAPIKey(), !apiKey.isEmpty else {
-            errorMessage = "設定でAPIキーを登録してください"
-            tts.speak("設定でAPIキーを登録してください")
+        guard let apiKey = APIKeyManager.shared.getOpenAIAPIKey(), !apiKey.isEmpty else {
+            errorMessage = "設定でOpenAI APIキーを登録してください"
+            tts.speakUsingSystemVoice("設定でOpenAI APIキーを登録してください")
             isProcessing = false
             return
         }
 
         // 播报开始
-        tts.speak("認識中です", apiKey: apiKey)
+        tts.speakUsingSystemVoice("認識中です")
 
         // 获取提示词
         let prompt = customPrompt ?? QuickVisionModeManager.shared.getPrompt(for: mode)
@@ -390,19 +390,19 @@ class QuickVisionManager: ObservableObject {
             saveToHistory(mode: mode, prompt: prompt, result: result, image: photo)
 
             // 10. TTS 播报结果
-            tts.speak(result, apiKey: apiKey)
+            tts.speakUsingSystemVoice(result)
 
             print("✅ [QuickVision] Complete: \(result)")
 
         } catch let error as QuickVisionError {
             errorMessage = error.localizedDescription
             print("❌ [QuickVision] QuickVisionError: \(error)")
-            tts.speak(error.localizedDescription, apiKey: apiKey)
+            tts.speakUsingSystemVoice(error.localizedDescription)
             await streamViewModel.stopSession()
         } catch {
             errorMessage = error.localizedDescription
             print("❌ [QuickVision] Error: \(error)")
-            tts.speak("認識に失敗しました。\(error.localizedDescription)", apiKey: apiKey)
+            tts.speakUsingSystemVoice("認識に失敗しました。\(error.localizedDescription)")
             await streamViewModel.stopSession()
         }
 

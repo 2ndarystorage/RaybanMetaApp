@@ -175,6 +175,16 @@ class TTSService: NSObject, ObservableObject {
         }
     }
 
+    func speakUsingSystemVoice(_ text: String) {
+        currentTask?.cancel()
+        stop()
+        isSpeaking = true
+        currentTask = Task {
+            await fallbackToSystemTTS(text: text)
+            isSpeaking = false
+        }
+    }
+
     /// 停止播报
     func stop() {
         currentTask?.cancel()

@@ -129,7 +129,7 @@ struct StreamView: View {
     .fullScreenCover(isPresented: $viewModel.showOmniRealtime) {
       OmniRealtimeView(
         streamViewModel: viewModel,
-        apiKey: VisionAPIConfig.apiKey
+        apiKey: APIProviderManager.staticLiveAIAPIKey
       )
     }
   }

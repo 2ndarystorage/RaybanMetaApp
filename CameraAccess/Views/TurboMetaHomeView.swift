@@ -11,16 +11,11 @@ struct TurboMetaHomeView: View {
     @StateObject private var quickVisionManager = QuickVisionManager.shared
     @StateObject private var liveAIManager = LiveAIManager.shared
     @ObservedObject private var providerManager = APIProviderManager.shared
-    let apiKey: String
 
     @State private var showLiveAI = false
-    @State private var showLiveStream = false
-    @State private var showRTMPStreaming = false
     @State private var showLeanEat = false
     @State private var showQuickVision = false
     @State private var showLiveTranslate = false
-    @State private var showOpenClaw = false
-    @ObservedObject private var openClawService = OpenClawNodeService.shared
 
     var body: some View {
         NavigationView {
@@ -85,44 +80,13 @@ struct TurboMetaHomeView: View {
                                 }
 
                                 FeatureCard(
-                                    title: "OpenClaw",
-                                    subtitle: openClawService.connectionState == .connected ? "home.openclaw.connected".localized : "home.openclaw.subtitle".localized,
-                                    icon: "link.circle.fill",
-                                    gradient: [Color.purple, Color.indigo]
+                                    title: "home.leaneat.title".localized,
+                                    subtitle: "home.leaneat.subtitle".localized,
+                                    icon: "chart.bar.fill",
+                                    gradient: [AppColors.leanEat, AppColors.leanEat.opacity(0.7)]
                                 ) {
-                                    showOpenClaw = true
+                                    showLeanEat = true
                                 }
-                            }
-
-                            // Row 3 - RTMP Streaming (Experimental)
-                            FeatureCardWide(
-                                title: "home.rtmp.title".localized,
-                                subtitle: "home.rtmp.subtitle".localized,
-                                icon: "antenna.radiowaves.left.and.right",
-                                gradient: [Color.red, Color.orange],
-                                badge: "home.experimental".localized
-                            ) {
-                                showRTMPStreaming = true
-                            }
-
-                            // Row 4 - Screen Recording Stream
-                            FeatureCardWide(
-                                title: "home.livestream.title".localized,
-                                subtitle: "home.livestream.subtitle".localized,
-                                icon: "video.fill",
-                                gradient: [AppColors.liveStream, AppColors.liveStream.opacity(0.7)]
-                            ) {
-                                showLiveStream = true
-                            }
-
-                            // Row 5 - LeanEat
-                            FeatureCardWide(
-                                title: "home.leaneat.title".localized,
-                                subtitle: "home.leaneat.subtitle".localized,
-                                icon: "chart.bar.fill",
-                                gradient: [AppColors.leanEat, AppColors.leanEat.opacity(0.7)]
-                            ) {
-                                showLeanEat = true
                             }
                         }
                         .padding(.horizontal, AppSpacing.lg)
@@ -132,25 +96,16 @@ struct TurboMetaHomeView: View {
             }
             .navigationBarHidden(true)
             .fullScreenCover(isPresented: $showLiveAI) {
-                LiveAIView(streamViewModel: streamViewModel, apiKey: apiKey)
-            }
-            .fullScreenCover(isPresented: $showLiveStream) {
-                SimpleLiveStreamView(streamViewModel: streamViewModel)
-            }
-            .fullScreenCover(isPresented: $showRTMPStreaming) {
-                RTMPStreamingView(streamViewModel: streamViewModel)
+                LiveAIView(streamViewModel: streamViewModel)
             }
             .fullScreenCover(isPresented: $showLeanEat) {
                 StreamView(viewModel: streamViewModel, wearablesVM: wearablesViewModel)
             }
             .fullScreenCover(isPresented: $showQuickVision) {
-                QuickVisionView(streamViewModel: streamViewModel, apiKey: apiKey)
+                QuickVisionView(streamViewModel: streamViewModel)
             }
             .fullScreenCover(isPresented: $showLiveTranslate) {
                 LiveTranslateView(streamViewModel: streamViewModel)
-            }
-            .fullScreenCover(isPresented: $showOpenClaw) {
-                OpenClawChatView(streamViewModel: streamViewModel)
             }
         }
         .onAppear {
@@ -159,11 +114,6 @@ struct TurboMetaHomeView: View {
             // 确保 LiveAIManager 有 streamViewModel 引用
             liveAIManager.setStreamViewModel(streamViewModel)
 
-            // OpenClaw 自动连接（如果有保存的配置）
-            if openClawService.connectionState == .disconnected,
-               openClawService.loadGatewayToken() != nil {
-                openClawService.connect()
-            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .liveAITriggered)) { _ in
             // 从快捷指令触发，自动打开 Live AI 界面
@@ -234,75 +184,6 @@ struct FeatureCard: View {
             .shadow(color: AppShadow.medium(), radius: 10, x: 0, y: 5)
         }
         .disabled(isPlaceholder)
-        .buttonStyle(ScaleButtonStyle())
-    }
-}
-
-// MARK: - Feature Card Wide
-
-struct FeatureCardWide: View {
-    let title: String
-    let subtitle: String
-    let icon: String
-    let gradient: [Color]
-    var badge: String? = nil
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: AppSpacing.lg) {
-                // Icon
-                ZStack {
-                    Circle()
-                        .fill(.white.opacity(0.2))
-                        .frame(width: 64, height: 64)
-
-                    Image(systemName: icon)
-                        .font(.system(size: 30, weight: .medium))
-                        .foregroundColor(.white)
-                }
-
-                // Text
-                VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                    HStack(spacing: AppSpacing.sm) {
-                        Text(title)
-                            .font(AppTypography.title2)
-                            .foregroundColor(.white)
-
-                        if let badge = badge {
-                            Text(badge)
-                                .font(.caption2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.white.opacity(0.25))
-                                .cornerRadius(4)
-                        }
-                    }
-
-                    Text(subtitle)
-                        .font(AppTypography.subheadline)
-                        .foregroundColor(.white.opacity(0.8))
-                }
-
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.6))
-            }
-            .padding(AppSpacing.lg)
-            .background(
-                LinearGradient(
-                    colors: gradient,
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-            .cornerRadius(AppCornerRadius.lg)
-            .shadow(color: AppShadow.medium(), radius: 10, x: 0, y: 5)
-        }
         .buttonStyle(ScaleButtonStyle())
     }
 }

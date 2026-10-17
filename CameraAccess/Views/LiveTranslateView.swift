@@ -16,11 +16,6 @@ struct LiveTranslateView: View {
             // 背景
             Color.black.ignoresSafeArea()
 
-            // 视频预览（如果启用图像增强）
-            if viewModel.imageEnhanceEnabled {
-                videoBackground
-            }
-
             // 主内容
             VStack(spacing: 0) {
                 // Header
@@ -43,13 +38,9 @@ struct LiveTranslateView: View {
         }
         .onAppear {
             viewModel.connect()
-            if viewModel.imageEnhanceEnabled {
-                startVideoStream()
-            }
         }
         .onDisappear {
             viewModel.disconnect()
-            stopVideoStream()
         }
         .sheet(isPresented: $showSettings) {
             LiveTranslateSettingsView(viewModel: viewModel)
@@ -58,13 +49,6 @@ struct LiveTranslateView: View {
             Button("common.ok".localized, role: .cancel) {}
         } message: {
             Text(viewModel.errorMessage ?? "")
-        }
-        .onChange(of: viewModel.imageEnhanceEnabled) { _, newValue in
-            if newValue {
-                startVideoStream()
-            } else {
-                stopVideoStream()
-            }
         }
     }
 
@@ -123,25 +107,8 @@ struct LiveTranslateView: View {
 
     private var languageBar: some View {
         HStack(spacing: 16) {
-            // 源语言
-            languageButton(
-                language: viewModel.sourceLanguage,
-                label: "livetranslate.source".localized
-            ) {
-                // 源语言选择（通过设置页面）
-                showSettings = true
-            }
-
-            // 交换按钮
-            Button {
-                viewModel.swapLanguages()
-            } label: {
-                Image(systemName: "arrow.left.arrow.right")
-                    .font(.title3)
-                    .foregroundColor(.white)
-                    .padding(12)
-                    .background(Circle().fill(Color.white.opacity(0.2)))
-            }
+            Text("原文: 自動検出")
+                .foregroundColor(.white)
 
             // 目标语言
             languageButton(
@@ -219,7 +186,7 @@ struct LiveTranslateView: View {
             if let lastRecord = viewModel.translationHistory.first {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
-                        Text("\(lastRecord.sourceLanguage.flag) → \(lastRecord.targetLanguage.flag)")
+                        Text("自動検出 → \(lastRecord.targetLanguage.flag)")
                             .font(AppTypography.caption)
                         Spacer()
                         Text(lastRecord.timestamp.formatted(date: .omitted, time: .shortened))
@@ -289,38 +256,6 @@ struct LiveTranslateView: View {
         .padding(.bottom, 20)
     }
 
-    // MARK: - Video Background
-
-    private var videoBackground: some View {
-        Group {
-            if let frame = streamViewModel.currentVideoFrame {
-                Image(uiImage: frame)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .ignoresSafeArea()
-                    .opacity(0.3)
-            }
-        }
-        .onChange(of: streamViewModel.currentVideoFrame) { _, frame in
-            if let frame = frame {
-                viewModel.updateVideoFrame(frame)
-            }
-        }
-    }
-
-    // MARK: - Video Stream
-
-    private func startVideoStream() {
-        Task {
-            await streamViewModel.startSession()
-        }
-    }
-
-    private func stopVideoStream() {
-        Task {
-            await streamViewModel.stopSession()
-        }
-    }
 }
 
 // Preview requires WearablesInterface - use in app context

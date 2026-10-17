@@ -11,15 +11,10 @@ struct MainTabView: View {
 
     @State private var selectedTab = 0
 
-    // Read API Key from secure storage
-    private var apiKey: String {
-        APIKeyManager.shared.getAPIKey() ?? ""
-    }
-
     var body: some View {
         TabView(selection: $selectedTab) {
             // Home - Feature entry
-            TurboMetaHomeView(streamViewModel: streamViewModel, wearablesViewModel: wearablesViewModel, apiKey: apiKey)
+            TurboMetaHomeView(streamViewModel: streamViewModel, wearablesViewModel: wearablesViewModel)
                 .tabItem {
                     Label("tab.home".localized, systemImage: "house.fill")
                 }
@@ -40,7 +35,7 @@ struct MainTabView: View {
                 .tag(2)
 
             // Settings
-            SettingsView(streamViewModel: streamViewModel, apiKey: apiKey)
+            SettingsView(streamViewModel: streamViewModel)
                 .tabItem {
                     Label("tab.settings".localized, systemImage: "person.fill")
                 }

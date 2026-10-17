@@ -11,12 +11,10 @@ class QuickVisionService {
     private let apiKey: String
     private let baseURL: String
     private let model: String
-    private let provider: APIProvider
 
     /// Initialize with explicit configuration
     init(apiKey: String, baseURL: String? = nil, model: String? = nil) {
         self.apiKey = apiKey
-        self.provider = VisionAPIConfig.provider
         self.baseURL = baseURL ?? VisionAPIConfig.baseURL
         self.model = model ?? VisionAPIConfig.model
     }
@@ -89,6 +87,9 @@ class QuickVisionService {
     ///   - customPrompt: 自定义提示词（可选，如果为 nil 则使用当前模式的提示词）
     /// - Returns: 简洁的描述文本，适合 TTS 播报
     func analyzeImage(_ image: UIImage, customPrompt: String? = nil) async throws -> String {
+        guard !apiKey.isEmpty else {
+            throw QuickVisionError.apiError(statusCode: 401, message: "設定でOpenAI APIキーを登録してください")
+        }
         // Convert image to base64
         guard let imageData = image.jpegData(compressionQuality: 0.7) else {
             throw QuickVisionError.invalidImage
@@ -147,7 +148,7 @@ class QuickVisionService {
         let encoder = JSONEncoder()
         urlRequest.httpBody = try encoder.encode(request)
 
-        print("📡 [QuickVision] Sending request to \(model) via \(provider.displayName)...")
+        print("📡 [QuickVision] Sending request to OpenAI \(model)...")
         print("📡 [QuickVision] URL: \(url.absoluteString)")
 
         let (data, response) = try await URLSession.shared.data(for: urlRequest)

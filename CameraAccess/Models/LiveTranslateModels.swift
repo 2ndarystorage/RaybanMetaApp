@@ -165,7 +165,6 @@ enum TranslateVoice: String, CaseIterable, Codable, Identifiable {
 struct TranslateRecord: Codable, Identifiable {
     let id: UUID
     let timestamp: Date
-    let sourceLanguage: TranslateLanguage
     let targetLanguage: TranslateLanguage
     let originalText: String      // 识别的原文
     let translatedText: String    // 翻译结果
@@ -173,14 +172,12 @@ struct TranslateRecord: Codable, Identifiable {
     init(
         id: UUID = UUID(),
         timestamp: Date = Date(),
-        sourceLanguage: TranslateLanguage,
         targetLanguage: TranslateLanguage,
         originalText: String,
         translatedText: String
     ) {
         self.id = id
         self.timestamp = timestamp
-        self.sourceLanguage = sourceLanguage
         self.targetLanguage = targetLanguage
         self.originalText = originalText
         self.translatedText = translatedText
