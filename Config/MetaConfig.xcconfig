@@ -1,0 +1,3 @@
+META_APP_ID =
+CLIENT_TOKEN =
+#include? "LocalSecrets.xcconfig"

@@ -121,6 +121,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A107B0A10000000000000001 /* MetaConfig.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/MetaConfig.xcconfig; sourceTree = "<group>"; };
 		0080AFEB87FC4CF85E53FE97 /* LanguageManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LanguageManager.swift; path = Managers/LanguageManager.swift; sourceTree = "<group>"; };
 		069172850B30A2766C8BD4B5 /* TTSService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TTSService.swift; sourceTree = "<group>"; };
 		1111827A1CF7A278A6DC6934 /* APIProviderManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = APIProviderManager.swift; path = Managers/APIProviderManager.swift; sourceTree = "<group>"; };
@@ -411,6 +412,7 @@
 		5A5A5A5A5A5A5A5A5A5A5A5A = {
 			isa = PBXGroup;
 			children = (
+				A107B0A10000000000000001 /* MetaConfig.xcconfig */,
 				8FD96B7D2E6F0A9800F56AB1 /* CameraAccess */,
 				8F2A14F12DDBCEB900D4E5F2 /* Frameworks */,
 				7A7A7A7A7A7A7A7A7A7A7A7A /* Products */,
@@ -707,6 +709,7 @@
 /* Begin XCBuildConfiguration section */
 		0B0B0B0B0B0B0B0B0B0B0B0B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A107B0A10000000000000001 /* MetaConfig.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -737,6 +740,7 @@
 		};
 		0C0C0C0C0C0C0C0C0C0C0C0C /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A107B0A10000000000000001 /* MetaConfig.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;

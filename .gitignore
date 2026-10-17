@@ -13,6 +13,7 @@ xcuserdata/
 *.moved-aside
 DerivedData/
 *.hmap
+Config/LocalSecrets.xcconfig
 
 *.xcuserstate
 *.xcworkspace

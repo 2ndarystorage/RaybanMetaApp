@@ -13,7 +13,7 @@
 ## まず使うには
 
 1. **Metaの開発者設定を用意：** [Meta Wearables Developer Center](https://wearables.developer.meta.com/)でアプリを登録し、Meta App IDとClient Tokenを取得します。元アプリとは別のBundle IdentifierとURLスキームを使うため、このコピー用の登録が必要です。
-2. **Xcodeで設定：** `CameraAccess.xcodeproj`を開き、SigningのTeamを選びます。`META_APP_ID`と`CLIENT_TOKEN`をローカルのビルド設定へ入力します。値をGitHubへ含めないでください。
+2. **Xcodeで設定：** `CameraAccess.xcodeproj`を開き、SigningのTeamを選びます。`Config/LocalSecrets.example.xcconfig`を`Config/LocalSecrets.xcconfig`にコピーし、`META_APP_ID`と`CLIENT_TOKEN`を入力します。このローカルファイルはGitの追跡対象外です。
 3. **iPhoneで起動：** 眼鏡をMetaアプリとペアリングし、DAT SDKプレビューモードを有効にしてから、Xcodeで実機へインストールします。
 4. **AIのキーを登録：** アプリの設定画面でOpenAI APIキーを登録し、ホームのLive AIから会話を始めます。Qwen・Geminiを使う場合は各サービスのキーも登録し、Live AI Providerで切り替えます。
 
@@ -59,7 +59,7 @@
 ## iOS版のセットアップ
 
 1. [Meta Wearables Developer Center](https://wearables.developer.meta.com/)でプロジェクトを作成し、iOS用の **Meta App ID** と **Client Token** を取得します。
-2. Xcodeで `CameraAccess.xcodeproj` を開き、署名用のTeamとBundle Identifierを確認します。このコピーには元アプリと同時インストールするため、末尾が `.openai` の別Bundle Identifierと `turbometa-openai://` のURLスキームを設定しています。Meta側にもこの識別子・スキームに対応するアプリ登録が必要です。`CameraAccess/Info.plist` は `$(META_APP_ID)` と `$(CLIENT_TOKEN)` を参照しているため、同名のXcodeビルド設定に新しいアプリの値を登録します。値をGitへコミットしないでください。
+2. Xcodeで `CameraAccess.xcodeproj` を開き、署名用のTeamとBundle Identifierを確認します。このコピーには元アプリと同時インストールするため、末尾が `.openai` の別Bundle Identifierと `turbometa-openai://` のURLスキームを設定しています。Meta側にもこの識別子・スキームに対応するアプリ登録が必要です。`Config/LocalSecrets.example.xcconfig`を`Config/LocalSecrets.xcconfig`へコピーして実際の`META_APP_ID`と`CLIENT_TOKEN`を入力します。`CameraAccess/Info.plist`はその値を参照します。秘密情報をGitへコミットしないでください。
 3. Meta View／Meta AIアプリで眼鏡をペアリングし、元プロジェクトの手順に従って **DAT SDKプレビューモード** を有効にします。元READMEでは、アプリ情報画面のバージョン番号を5回タップする手順が案内されています。
 4. iPhoneを接続してXcodeからビルド・起動します。別Bundle Identifierのため、元アプリのKeychainに保存したAPIキーは引き継がれません。アプリの設定画面で利用するAIサービスのAPIキーを再登録します。
 
