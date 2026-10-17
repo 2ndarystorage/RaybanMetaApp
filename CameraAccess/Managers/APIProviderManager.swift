@@ -14,8 +14,8 @@ enum AlibabaEndpoint: String, CaseIterable, Codable {
 
     var displayName: String {
         switch self {
-        case .beijing: return "北京 (中国大陆)"
-        case .singapore: return "新加坡 (国际)"
+        case .beijing: return "北京（中国本土）"
+        case .singapore: return "シンガポール（海外）"
         }
     }
 
@@ -42,7 +42,7 @@ enum APIProvider: String, CaseIterable, Codable {
 
     var displayName: String {
         switch self {
-        case .alibaba: return "阿里云 Dashscope"
+        case .alibaba: return "Alibaba Cloud DashScope"
         case .openrouter: return "OpenRouter"
         }
     }
@@ -80,15 +80,15 @@ enum APIProvider: String, CaseIterable, Codable {
 // MARK: - Live AI Provider Enum
 
 enum LiveAIProvider: String, CaseIterable, Codable {
-    case automatic = "automatic"
+    case openai = "openai"
     case alibaba = "alibaba"
     case google = "google"
-    case openai = "openai"
+    case automatic = "automatic"
 
     var displayName: String {
         switch self {
         case .automatic: return "AI Router (Auto)"
-        case .alibaba: return "阿里云 Qwen Omni"
+        case .alibaba: return "Alibaba Cloud Qwen Omni"
         case .google: return "Google Gemini Live"
         case .openai: return "OpenAI Realtime"
         }
@@ -257,8 +257,8 @@ class APIProviderManager: ObservableObject {
         self.selectedModel = savedModel ?? provider.defaultModel
 
         // Live AI Provider
-        let savedLiveAIProvider = UserDefaults.standard.string(forKey: liveAIProviderKey) ?? "alibaba"
-        let liveProvider = LiveAIProvider(rawValue: savedLiveAIProvider) ?? .alibaba
+        let savedLiveAIProvider = UserDefaults.standard.string(forKey: liveAIProviderKey) ?? "openai"
+        let liveProvider = LiveAIProvider(rawValue: savedLiveAIProvider) ?? .openai
         self.liveAIProvider = liveProvider
 
         let savedLiveAIModel = UserDefaults.standard.string(forKey: liveAIModelKey)
@@ -328,7 +328,7 @@ class APIProviderManager: ObservableObject {
     func fetchOpenRouterModels() async {
         guard currentProvider == .openrouter else { return }
         guard let apiKey = APIKeyManager.shared.getAPIKey(for: .openrouter), !apiKey.isEmpty else {
-            modelsError = "请先配置 OpenRouter API Key"
+            modelsError = "OpenRouter APIキーを設定してください"
             return
         }
 
@@ -346,7 +346,7 @@ class APIProviderManager: ObservableObject {
             let (data, response) = try await URLSession.shared.data(for: request)
 
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                throw NSError(domain: "OpenRouter", code: -1, userInfo: [NSLocalizedDescriptionKey: "获取模型列表失败"])
+                throw NSError(domain: "OpenRouter", code: -1, userInfo: [NSLocalizedDescriptionKey: "モデル一覧を取得できませんでした"])
             }
 
             let decoder = JSONDecoder()
@@ -399,8 +399,8 @@ extension APIProviderManager {
     }
 
     nonisolated static var staticLiveAIProvider: LiveAIProvider {
-        let savedProvider = UserDefaults.standard.string(forKey: "liveai_provider") ?? "alibaba"
-        return LiveAIProvider(rawValue: savedProvider) ?? .alibaba
+        let savedProvider = UserDefaults.standard.string(forKey: "liveai_provider") ?? "openai"
+        return LiveAIProvider(rawValue: savedProvider) ?? .openai
     }
 
     nonisolated static var staticLiveAIAPIKey: String {

@@ -35,7 +35,7 @@ class QuickVisionModeManager: ObservableObject {
 
     // 支持的翻译目标语言
     static let supportedLanguages: [(code: String, name: String)] = [
-        ("zh-CN", "中文"),
+        ("zh-CN", "中国語"),
         ("en-US", "English"),
         ("ja-JP", "日本語"),
         ("ko-KR", "한국어"),
@@ -63,7 +63,11 @@ class QuickVisionModeManager: ObservableObject {
         if let savedLanguage = userDefaults.string(forKey: translateTargetLanguageKey) {
             self.translateTargetLanguage = savedLanguage
         } else {
-            self.translateTargetLanguage = LanguageManager.staticApiLanguageCode
+            switch LanguageManager.staticApiLanguageCode {
+            case "Chinese": self.translateTargetLanguage = "zh-CN"
+            case "Japanese": self.translateTargetLanguage = "ja-JP"
+            default: self.translateTargetLanguage = "en-US"
+            }
         }
     }
 
@@ -95,7 +99,7 @@ class QuickVisionModeManager: ObservableObject {
 
     /// 获取翻译模式的提示词（包含目标语言）
     private func getTranslatePrompt() -> String {
-        let targetLanguageName = Self.supportedLanguages.first { $0.code == translateTargetLanguage }?.name ?? "中文"
+        let targetLanguageName = Self.supportedLanguages.first { $0.code == translateTargetLanguage }?.name ?? "日本語"
         let basePrompt = "prompt.quickvision.translate".localized
         return basePrompt.replacingOccurrences(of: "{LANGUAGE}", with: targetLanguageName)
     }

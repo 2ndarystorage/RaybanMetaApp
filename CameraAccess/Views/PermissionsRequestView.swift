@@ -31,11 +31,11 @@ struct PermissionsRequestView: View {
 
                 // Title
                 VStack(spacing: AppSpacing.sm) {
-                    Text("需要您的授权")
+                    Text("権限の許可が必要です")
                         .font(AppTypography.title)
                         .foregroundColor(AppColors.textPrimary)
 
-                    Text("TurboMeta 需要以下权限才能正常工作")
+                    Text("TurboMetaを使用するには次の権限が必要です")
                         .font(AppTypography.body)
                         .foregroundColor(AppColors.textSecondary)
                         .multilineTextAlignment(.center)
@@ -46,14 +46,14 @@ struct PermissionsRequestView: View {
                 VStack(spacing: AppSpacing.md) {
                     PermissionRow(
                         icon: "mic.fill",
-                        title: "麦克风",
-                        description: "语音对话和录音"
+                        title: "マイク",
+                        description: "音声会話と録音"
                     )
 
                     PermissionRow(
                         icon: "photo.fill",
-                        title: "相册",
-                        description: "保存眼镜拍摄的照片"
+                        title: "写真",
+                        description: "グラスで撮影した写真の保存"
                     )
                 }
                 .padding(.horizontal, AppSpacing.xl)
@@ -68,7 +68,7 @@ struct PermissionsRequestView: View {
                             .scaleEffect(1.5)
                     } else if showSettings {
                         VStack(spacing: AppSpacing.sm) {
-                            Text("部分权限未授予")
+                            Text("許可されていない権限があります")
                                 .font(AppTypography.caption)
                                 .foregroundColor(.red)
 
@@ -77,7 +77,7 @@ struct PermissionsRequestView: View {
                             } label: {
                                 HStack {
                                     Image(systemName: "gear")
-                                    Text("前往设置")
+                                    Text("設定を開く")
                                         .font(AppTypography.headline)
                                 }
                                 .frame(maxWidth: .infinity)
@@ -87,7 +87,7 @@ struct PermissionsRequestView: View {
                                 .cornerRadius(AppCornerRadius.lg)
                             }
 
-                            Button("继续使用（功能受限）") {
+                            Button("制限付きで続ける") {
                                 onComplete(false)
                             }
                             .font(AppTypography.body)
@@ -99,7 +99,7 @@ struct PermissionsRequestView: View {
                         } label: {
                             HStack {
                                 Image(systemName: "checkmark.circle.fill")
-                                Text("授予权限")
+                                Text("権限を許可")
                                     .font(AppTypography.headline)
                             }
                             .frame(maxWidth: .infinity)

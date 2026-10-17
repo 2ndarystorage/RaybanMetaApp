@@ -74,7 +74,7 @@ struct VisionAPIService {
     // MARK: - Public Methods
 
     /// Analyze image and get description
-    func analyzeImage(_ image: UIImage, prompt: String = "图中描绘的是什么景象?") async throws -> String {
+    func analyzeImage(_ image: UIImage, prompt: String = "画像には何が写っていますか？日本語で説明してください。") async throws -> String {
         // Convert image to base64
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             throw VisionAPIError.invalidImage
@@ -161,13 +161,13 @@ enum VisionAPIError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidImage:
-            return "无法处理图片"
+            return "画像を処理できません"
         case .emptyResponse:
-            return "API 返回空响应"
+            return "APIから応答がありません"
         case .invalidResponse:
-            return "无效的响应格式"
+            return "応答形式が無効です"
         case .apiError(let statusCode, let message):
-            return "API 错误 (\(statusCode)): \(message)"
+            return "APIエラー (\(statusCode)): \(message)"
         }
     }
 }

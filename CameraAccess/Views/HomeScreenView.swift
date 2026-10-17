@@ -49,7 +49,7 @@ struct HomeScreenView: View {
             .font(AppTypography.largeTitle)
             .foregroundColor(AppColors.textPrimary)
 
-          Text("Rayban Meta助手")
+          Text("Ray-Ban Metaアシスタント")
             .font(AppTypography.callout)
             .foregroundColor(AppColors.textSecondary)
         }
@@ -58,18 +58,18 @@ struct HomeScreenView: View {
         VStack(spacing: AppSpacing.md) {
           FeatureTipView(
             icon: "video.fill",
-            title: "实时视频",
-            text: "从眼镜视角直接录制视频，捕捉你的所见所闻"
+            title: "リアルタイム映像",
+            text: "グラスの視点で映像を記録できます"
           )
           FeatureTipView(
             icon: "brain.head.profile",
-            title: "AI 对话",
-            text: "实时 AI 助手，随时随地为你提供智能帮助"
+            title: "AI会話",
+            text: "いつでもリアルタイムでAIに相談できます"
           )
           FeatureTipView(
             icon: "waveform",
-            title: "开放式音频",
-            text: "保持耳朵对周围世界的开放，同时接收通知"
+            title: "オープンイヤー音声",
+            text: "周囲の音を聞きながら通知を受け取れます"
           )
         }
 
@@ -77,7 +77,7 @@ struct HomeScreenView: View {
 
         // Connection Button
         VStack(spacing: AppSpacing.md) {
-          Text("将跳转到 Meta AI 应用确认连接")
+          Text("Meta AIアプリに移動して接続を確認します")
             .font(AppTypography.footnote)
             .foregroundColor(AppColors.textSecondary)
             .multilineTextAlignment(.center)
@@ -90,11 +90,11 @@ struct HomeScreenView: View {
               if viewModel.registrationState == .registering {
                 ProgressView()
                   .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                Text("连接中...")
+                Text("接続中…")
               } else {
                 Image(systemName: "eye.circle.fill")
                   .font(.title3)
-                Text("连接 Ray-Ban Meta")
+                Text("Ray-Ban Metaに接続")
               }
             }
             .font(AppTypography.headline)
@@ -129,10 +129,10 @@ struct HomeScreenView: View {
               .foregroundColor(.green)
 
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
-              Text("连接成功")
+              Text("接続しました")
                 .font(AppTypography.headline)
                 .foregroundColor(.white)
-              Text("正在进入 TurboMeta...")
+              Text("TurboMetaを開いています…")
                 .font(AppTypography.caption)
                 .foregroundColor(.white.opacity(0.9))
             }

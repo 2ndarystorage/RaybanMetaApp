@@ -10,8 +10,8 @@ import UIKit
 
 @available(iOS 16.0, *)
 struct LiveAIIntent: AppIntent {
-    static var title: LocalizedStringResource = "实时对话"
-    static var description = IntentDescription("启动实时多模态对话")
+    static var title: LocalizedStringResource = "リアルタイム会話"
+    static var description = IntentDescription("リアルタイムのマルチモーダル会話を開始します")
     // 必须打开 App，因为 iOS 后台录音有系统限制
     static var openAppWhenRun: Bool = true
 
@@ -19,7 +19,7 @@ struct LiveAIIntent: AppIntent {
     func perform() async throws -> some IntentResult & ProvidesDialog {
         // 发送通知让 App 自动打开 Live AI 界面
         NotificationCenter.default.post(name: .liveAITriggered, object: nil)
-        return .result(dialog: "正在启动实时对话...")
+        return .result(dialog: "リアルタイム会話を開始しています…")
     }
 }
 
@@ -27,8 +27,8 @@ struct LiveAIIntent: AppIntent {
 
 @available(iOS 16.0, *)
 struct StopLiveAIIntent: AppIntent {
-    static var title: LocalizedStringResource = "停止实时对话"
-    static var description = IntentDescription("停止正在运行的实时对话")
+    static var title: LocalizedStringResource = "会話を停止"
+    static var description = IntentDescription("実行中のリアルタイム会話を停止します")
     static var openAppWhenRun: Bool = false
 
     @MainActor
@@ -37,9 +37,9 @@ struct StopLiveAIIntent: AppIntent {
 
         if manager.isRunning {
             await manager.stopSession()
-            return .result(dialog: "Live AI 已停止")
+            return .result(dialog: "Live AIを停止しました")
         } else {
-            return .result(dialog: "Live AI 未在运行")
+            return .result(dialog: "Live AIは実行されていません")
         }
     }
 }

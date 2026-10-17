@@ -383,7 +383,12 @@ class TTSService: NSObject, ObservableObject {
 
         let utterance = AVSpeechUtterance(string: text)
         // 根据当前语言设置选择系统语音
-        let voiceLanguage = LanguageManager.staticIsChinese ? "zh-CN" : "en-US"
+        let voiceLanguage: String
+        switch LanguageManager.staticApiLanguageCode {
+        case "Chinese": voiceLanguage = "zh-CN"
+        case "Japanese": voiceLanguage = "ja-JP"
+        default: voiceLanguage = "en-US"
+        }
         utterance.voice = AVSpeechSynthesisVoice(language: voiceLanguage)
         utterance.rate = AVSpeechUtteranceDefaultSpeechRate * 1.0
         utterance.volume = 1.0
@@ -422,15 +427,15 @@ enum TTSError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noAPIKey:
-            return "未配置 API Key"
+            return "APIキーが設定されていません"
         case .invalidResponse:
-            return "无效的响应"
+            return "応答が無効です"
         case .apiError(let statusCode):
-            return "API 错误: \(statusCode)"
+            return "APIエラー: \(statusCode)"
         case .noAudioData:
-            return "未收到音频数据"
+            return "音声データを受信できませんでした"
         case .playbackFailed:
-            return "音频播放失败"
+            return "音声を再生できませんでした"
         }
     }
 }

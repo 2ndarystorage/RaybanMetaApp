@@ -10,6 +10,7 @@ struct TurboMetaHomeView: View {
     @ObservedObject var wearablesViewModel: WearablesViewModel
     @StateObject private var quickVisionManager = QuickVisionManager.shared
     @StateObject private var liveAIManager = LiveAIManager.shared
+    @ObservedObject private var providerManager = APIProviderManager.shared
     let apiKey: String
 
     @State private var showLiveAI = false
@@ -55,7 +56,7 @@ struct TurboMetaHomeView: View {
                             HStack(spacing: AppSpacing.md) {
                                 FeatureCard(
                                     title: "home.liveai.title".localized,
-                                    subtitle: "home.liveai.subtitle".localized,
+                                    subtitle: providerManager.liveAIProvider.displayName,
                                     icon: "brain.head.profile",
                                     gradient: [AppColors.liveAI, AppColors.liveAI.opacity(0.7)]
                                 ) {

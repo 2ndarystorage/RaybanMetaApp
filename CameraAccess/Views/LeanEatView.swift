@@ -40,11 +40,11 @@ struct LeanEatView: View {
                     .padding()
                 }
             }
-            .navigationTitle("LeanEat 营养分析")
+            .navigationTitle("LeanEat 栄養分析")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完成") {
+                    Button("完了") {
                         dismiss()
                     }
                 }
@@ -77,11 +77,11 @@ struct LeanEatView: View {
                 .scaleEffect(1.5)
                 .tint(AppColors.leanEat)
 
-            Text("AI正在分析食物营养...")
+            Text("AIが食品の栄養を分析中…")
                 .font(AppTypography.headline)
                 .foregroundColor(AppColors.textPrimary)
 
-            Text("请稍候，这可能需要几秒钟")
+            Text("数秒かかる場合があります")
                 .font(AppTypography.caption)
                 .foregroundColor(AppColors.textSecondary)
         }
@@ -96,7 +96,7 @@ struct LeanEatView: View {
                 .font(.system(size: 60))
                 .foregroundColor(.orange)
 
-            Text("分析失败")
+            Text("分析に失敗しました")
                 .font(AppTypography.title2)
                 .foregroundColor(AppColors.textPrimary)
 
@@ -113,7 +113,7 @@ struct LeanEatView: View {
             } label: {
                 HStack {
                     Image(systemName: "arrow.clockwise")
-                    Text("重试")
+                    Text("再試行")
                 }
                 .font(AppTypography.headline)
                 .foregroundColor(.white)
@@ -135,11 +135,11 @@ struct LeanEatView: View {
                 .font(.system(size: 60))
                 .foregroundColor(AppColors.leanEat)
 
-            Text("开始分析")
+            Text("分析を開始")
                 .font(AppTypography.title2)
                 .foregroundColor(AppColors.textPrimary)
 
-            Text("点击下方按钮开始分析食物营养")
+            Text("下のボタンを押して栄養分析を始めます")
                 .font(AppTypography.body)
                 .foregroundColor(AppColors.textSecondary)
 
@@ -150,7 +150,7 @@ struct LeanEatView: View {
             } label: {
                 HStack {
                     Image(systemName: "sparkles")
-                    Text("开始分析")
+                    Text("分析を開始")
                 }
                 .font(AppTypography.headline)
                 .foregroundColor(.white)
@@ -194,7 +194,7 @@ struct LeanEatView: View {
 
     private func healthScoreCard(_ nutrition: FoodNutritionResponse) -> some View {
         VStack(spacing: AppSpacing.md) {
-            Text("健康评分")
+            Text("健康スコア")
                 .font(AppTypography.headline)
                 .foregroundColor(AppColors.textPrimary)
 
@@ -243,7 +243,7 @@ struct LeanEatView: View {
 
     private func totalNutritionCard(_ nutrition: FoodNutritionResponse) -> some View {
         VStack(alignment: .leading, spacing: AppSpacing.md) {
-            Text("总营养成分")
+            Text("栄養成分の合計")
                 .font(AppTypography.headline)
                 .foregroundColor(AppColors.textPrimary)
 
@@ -253,28 +253,28 @@ struct LeanEatView: View {
             ], spacing: AppSpacing.md) {
                 nutritionItem(
                     icon: "flame.fill",
-                    title: "热量",
+                    title: "カロリー",
                     value: nutrition.formattedTotalCalories,
                     color: .orange
                 )
 
                 nutritionItem(
                     icon: "leaf.fill",
-                    title: "蛋白质",
+                    title: "タンパク質",
                     value: nutrition.formattedTotalProtein,
                     color: .green
                 )
 
                 nutritionItem(
                     icon: "drop.fill",
-                    title: "脂肪",
+                    title: "脂質",
                     value: nutrition.formattedTotalFat,
                     color: .yellow
                 )
 
                 nutritionItem(
                     icon: "sparkles",
-                    title: "碳水",
+                    title: "炭水化物",
                     value: nutrition.formattedTotalCarbs,
                     color: .blue
                 )
@@ -310,7 +310,7 @@ struct LeanEatView: View {
 
     private func foodItemsList(_ foods: [FoodItem]) -> some View {
         VStack(alignment: .leading, spacing: AppSpacing.md) {
-            Text("食物明细")
+            Text("食品の内訳")
                 .font(AppTypography.headline)
                 .foregroundColor(AppColors.textPrimary)
                 .padding(.horizontal)
@@ -340,15 +340,15 @@ struct LeanEatView: View {
 
                 Spacer()
 
-                Text(food.healthRating)
+                Text(food.localizedHealthRating)
                     .font(AppTypography.caption)
                     .foregroundColor(.white)
                     .padding(.horizontal, AppSpacing.sm)
                     .padding(.vertical, 4)
                     .background(
-                        food.healthRating == "优秀" ? Color.green :
+                        ["優秀", "优秀"].contains(food.healthRating) ? Color.green :
                         food.healthRating == "良好" ? Color.yellow :
-                        food.healthRating == "一般" ? Color.orange : Color.red
+                        ["普通", "一般"].contains(food.healthRating) ? Color.orange : Color.red
                     )
                     .cornerRadius(AppCornerRadius.sm)
             }
@@ -357,7 +357,7 @@ struct LeanEatView: View {
 
             // Nutrition details
             HStack(spacing: AppSpacing.lg) {
-                miniNutritionItem(icon: "flame.fill", value: "\(food.calories)", unit: "千卡", color: .orange)
+                miniNutritionItem(icon: "flame.fill", value: "\(food.calories)", unit: "kcal", color: .orange)
                 miniNutritionItem(icon: "leaf.fill", value: String(format: "%.1f", food.protein), unit: "g", color: .green)
                 miniNutritionItem(icon: "drop.fill", value: String(format: "%.1f", food.fat), unit: "g", color: .yellow)
                 miniNutritionItem(icon: "sparkles", value: String(format: "%.1f", food.carbs), unit: "g", color: .blue)
@@ -393,7 +393,7 @@ struct LeanEatView: View {
             HStack {
                 Image(systemName: "lightbulb.fill")
                     .foregroundColor(AppColors.leanEat)
-                Text("营养建议")
+                Text("栄養アドバイス")
                     .font(AppTypography.headline)
                     .foregroundColor(AppColors.textPrimary)
             }

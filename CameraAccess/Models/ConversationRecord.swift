@@ -32,7 +32,7 @@ struct ConversationRecord: Identifiable, Codable {
             let content = firstUserMessage.content
             return content.count > 30 ? String(content.prefix(30)) + "..." : content
         }
-        return "AI 对话"
+        return "AI会話"
     }
 
     var summary: String {
@@ -53,10 +53,10 @@ struct ConversationRecord: Identifiable, Codable {
 
         if calendar.isDateInToday(timestamp) {
             formatter.dateFormat = "HH:mm"
-            return "今天 " + formatter.string(from: timestamp)
+            return "今日 " + formatter.string(from: timestamp)
         } else if calendar.isDateInYesterday(timestamp) {
             formatter.dateFormat = "HH:mm"
-            return "昨天 " + formatter.string(from: timestamp)
+            return "昨日 " + formatter.string(from: timestamp)
         } else if calendar.isDate(timestamp, equalTo: Date(), toGranularity: .weekOfYear) {
             formatter.dateFormat = "EEEE HH:mm"
             return formatter.string(from: timestamp)

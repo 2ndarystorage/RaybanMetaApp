@@ -21,7 +21,7 @@ class LiveAIManager: ObservableObject {
     private(set) var streamViewModel: StreamSessionViewModel?
     private var omniService: OmniRealtimeService?
     private var geminiService: GeminiLiveService?
-    private var provider: LiveAIProvider = .alibaba
+    private var provider: LiveAIProvider = .openai
 
     // 视频帧
     private var currentVideoFrame: UIImage?
@@ -66,15 +66,15 @@ class LiveAIManager: ObservableObject {
 
         guard let streamViewModel = streamViewModel else {
             print("❌ [LiveAIManager] StreamViewModel not set")
-            tts.speak("Live AI 未初始化，请先打开应用")
+            tts.speak("Live AIを利用できません。先にアプリを開いてください")
             return
         }
 
         // 获取 API Key
         let apiKey = APIProviderManager.staticLiveAIAPIKey
         guard !apiKey.isEmpty else {
-            errorMessage = "请先在设置中配置 API Key"
-            tts.speak("请先在设置中配置 API Key")
+            errorMessage = "設定でAPIキーを登録してください"
+            tts.speak("設定でAPIキーを登録してください")
             return
         }
 
@@ -469,13 +469,13 @@ enum LiveAIError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noDevice:
-            return "眼镜未连接，请先在 Meta View 中配对眼镜"
+            return "グラスが未接続です。Meta AIアプリでペアリングしてください"
         case .streamNotReady:
-            return "视频流启动失败，请检查眼镜连接状态"
+            return "映像を開始できません。グラスの接続を確認してください"
         case .connectionFailed:
-            return "AI 服务连接失败，请检查网络"
+            return "AIサービスに接続できません。ネットワークを確認してください"
         case .noAPIKey:
-            return "请先在设置中配置 API Key"
+            return "設定でAPIキーを登録してください"
         }
     }
 }

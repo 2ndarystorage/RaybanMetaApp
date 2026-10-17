@@ -4,8 +4,8 @@
  */
 
 // MARK: - App General
-"app.name" = "TurboMeta";
-"app.subtitle" = "RayBan Meta助手";
+"app.name" = "RaybanMeta OpenAI";
+"app.subtitle" = "优先使用 OpenAI，也可选择 Qwen 和 Gemini";
 "ok" = "确定";
 "cancel" = "取消";
 "close" = "关闭";

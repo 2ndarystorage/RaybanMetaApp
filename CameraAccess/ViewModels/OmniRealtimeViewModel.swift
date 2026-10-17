@@ -314,7 +314,7 @@ class OmniRealtimeViewModel: ObservableObject {
     func startRecording() {
         guard isConnected else {
             print("⚠️ [LiveAI] 未连接，无法开始录音")
-            errorMessage = "请先连接服务器"
+            errorMessage = "先にサーバーに接続してください"
             showError = true
             return
         }

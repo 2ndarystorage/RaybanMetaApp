@@ -68,39 +68,39 @@ class LeanEatService {
 
         // Create specialized nutrition analysis prompt
         let nutritionPrompt = """
-你是一位专业的营养师AI。请分析图片中的食物，并返回纯JSON格式的营养信息。
+あなたは栄養士のAIです。画像の食品を分析し、栄養情報をJSONのみで返してください。
 
-**严格要求：必须返回纯JSON格式，不要任何额外文字！**
-**重要：所有文字内容（包括name字段）必须用中文！**
+**必ずJSONのみを返し、追加の文章を含めないでください。**
+**nameやsuggestionsなど、文字列の値はすべて日本語にしてください。**
 
-JSON格式如下：
+JSON形式：
 {
   "foods": [
     {
-      "name": "食物名称（中文）",
-      "portion": "份量（如：1碗、100克等）",
-      "calories": 热量数字（整数，单位：千卡）,
-      "protein": 蛋白质（浮点数，单位：克）,
-      "fat": 脂肪（浮点数，单位：克）,
-      "carbs": 碳水化合物（浮点数，单位：克）,
-      "fiber": 膳食纤维（浮点数，单位：克，可选）,
-      "sugar": 糖分（浮点数，单位：克，可选）,
-      "health_rating": "健康评级（优秀/良好/一般/较差）"
+      "name": "食品名（日本語）",
+      "portion": "分量（例：1杯、100g）",
+      "calories": カロリー（整数、kcal）,
+      "protein": タンパク質（数値、g）,
+      "fat": 脂質（数値、g）,
+      "carbs": 炭水化物（数値、g）,
+      "fiber": 食物繊維（数値、g、省略可）,
+      "sugar": 糖質（数値、g、省略可）,
+      "health_rating": "評価（優秀/良好/普通/要改善）"
     }
   ],
-  "total_calories": 总热量（整数）,
-  "total_protein": 总蛋白质（浮点数）,
-  "total_fat": 总脂肪（浮点数）,
-  "total_carbs": 总碳水化合物（浮点数）,
-  "health_score": 健康评分（0-100整数）,
+  "total_calories": 総カロリー（整数）,
+  "total_protein": タンパク質合計（数値）,
+  "total_fat": 脂質合計（数値）,
+  "total_carbs": 炭水化物合計（数値）,
+  "health_score": 健康スコア（0～100の整数）,
   "suggestions": [
-    "营养建议1",
-    "营养建议2",
-    "营养建议3"
+    "栄養アドバイス1",
+    "栄養アドバイス2",
+    "栄養アドバイス3"
   ]
 }
 
-请严格按照上述JSON格式返回，不要添加任何其他文字说明。
+上記のJSON形式に従い、説明文は追加しないでください。
 """
 
         // Create API request
@@ -203,15 +203,15 @@ enum LeanEatError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidImage:
-            return "无法处理图片"
+            return "画像を処理できません"
         case .emptyResponse:
-            return "API 返回空响应"
+            return "APIから応答がありません"
         case .invalidResponse:
-            return "无效的响应格式"
+            return "応答形式が無効です"
         case .invalidJSON:
-            return "无法解析营养数据，请重试"
+            return "栄養データを解析できません。再試行してください"
         case .apiError(let statusCode, let message):
-            return "API 错误 (\(statusCode)): \(message)"
+            return "APIエラー (\(statusCode)): \(message)"
         }
     }
 }

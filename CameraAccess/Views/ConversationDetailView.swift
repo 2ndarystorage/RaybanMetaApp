@@ -25,11 +25,11 @@ struct ConversationDetailView: View {
                     .padding()
                 }
             }
-            .navigationTitle("对话详情")
+            .navigationTitle("会話の詳細")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完成") {
+                    Button("完了") {
                         dismiss()
                     }
                 }
@@ -50,7 +50,7 @@ struct ConversationDetailView: View {
                         Image(systemName: "bubble.left.and.bubble.right")
                             .font(AppTypography.caption)
                             .foregroundColor(AppColors.textSecondary)
-                        Text("\(conversation.messageCount) 条消息")
+                        Text("メッセージ \(conversation.messageCount)件")
                             .font(AppTypography.caption)
                             .foregroundColor(AppColors.textSecondary)
                     }

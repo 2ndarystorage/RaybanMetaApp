@@ -55,11 +55,20 @@ struct FoodItem: Codable, Identifiable {
 
     var healthRatingEmoji: String {
         switch healthRating {
-        case "优秀": return "🟢"
+        case "優秀", "优秀": return "🟢"
         case "良好": return "🟡"
-        case "一般": return "🟠"
-        case "较差": return "🔴"
+        case "普通", "一般": return "🟠"
+        case "要改善", "较差": return "🔴"
         default: return "⚪️"
+        }
+    }
+
+    var localizedHealthRating: String {
+        switch healthRating {
+        case "优秀": return "優秀"
+        case "一般": return "普通"
+        case "较差": return "要改善"
+        default: return healthRating
         }
     }
 }
@@ -68,7 +77,7 @@ struct FoodItem: Codable, Identifiable {
 
 extension FoodNutritionResponse {
     var formattedTotalCalories: String {
-        "\(totalCalories) 千卡"
+        "\(totalCalories) kcal"
     }
 
     var formattedTotalProtein: String {
@@ -97,13 +106,13 @@ extension FoodNutritionResponse {
 
     var healthScoreText: String {
         if healthScore >= 80 {
-            return "非常健康"
+            return "とても健康的"
         } else if healthScore >= 60 {
-            return "比较健康"
+            return "健康的"
         } else if healthScore >= 40 {
-            return "一般"
+            return "まずまず"
         } else {
-            return "需要改善"
+            return "改善が必要"
         }
     }
 }

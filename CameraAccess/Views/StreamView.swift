@@ -145,11 +145,11 @@ struct StreamView: View {
           .font(.system(size: 80))
           .foregroundColor(.white.opacity(0.6))
 
-        Text("未连接RayBan Meta眼镜")
+        Text("Ray-Ban Metaが接続されていません")
           .font(AppTypography.title2)
           .foregroundColor(.white)
 
-        Text("请先在首页连接你的智能眼镜，\n然后再使用直播功能")
+        Text("先にホーム画面でスマートグラスを接続してから、\n配信機能を使用してください")
           .font(AppTypography.body)
           .foregroundColor(.white.opacity(0.8))
           .multilineTextAlignment(.center)
@@ -164,7 +164,7 @@ struct StreamView: View {
       } label: {
         HStack(spacing: AppSpacing.sm) {
           Image(systemName: "chevron.left")
-          Text("返回首页")
+          Text("ホームに戻る")
             .font(AppTypography.headline)
         }
         .frame(maxWidth: .infinity)

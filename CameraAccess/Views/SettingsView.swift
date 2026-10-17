@@ -28,10 +28,11 @@ struct SettingsView: View {
     @ObservedObject var quickVisionModeManager = QuickVisionModeManager.shared
     @ObservedObject var liveAIModeManager = LiveAIModeManager.shared
     @State private var selectedModel = "qwen3-omni-flash-realtime"
-    @State private var selectedLanguage = "zh-CN" // 默认中文
+    @State private var selectedLanguage = LanguageManager.staticApiLanguageCode == "Chinese" ? "zh-CN" : (LanguageManager.staticApiLanguageCode == "Japanese" ? "ja-JP" : "en-US")
     @State private var selectedQuality = UserDefaults.standard.string(forKey: "video_quality") ?? "medium"
     @State private var hasAPIKey = false // 改为 State 变量
     @State private var hasGoogleAPIKey = false // Google API Key 状态
+    @State private var hasOpenAIAPIKey = false
 
     init(streamViewModel: StreamSessionViewModel, apiKey: String) {
         self.streamViewModel = streamViewModel
@@ -42,6 +43,7 @@ struct SettingsView: View {
     private func refreshAPIKeyStatus() {
         hasAPIKey = providerManager.hasAPIKey
         hasGoogleAPIKey = APIKeyManager.shared.hasGoogleAPIKey()
+        hasOpenAIAPIKey = APIKeyManager.shared.hasOpenAIAPIKey()
     }
 
     var body: some View {
@@ -246,6 +248,24 @@ struct SettingsView: View {
                         }
                     }
 
+                    Button {
+                        showOpenAIAPIKeySettings = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "key.fill")
+                                .foregroundColor(AppColors.primary)
+                            Text("OpenAI API Key")
+                                .foregroundColor(AppColors.textPrimary)
+                            Spacer()
+                            Text(hasOpenAIAPIKey ? "settings.apikey.configured".localized : "settings.apikey.notconfigured".localized)
+                                .font(AppTypography.caption)
+                                .foregroundColor(hasOpenAIAPIKey ? .green : .red)
+                            Image(systemName: "chevron.right")
+                                .font(AppTypography.caption)
+                                .foregroundColor(AppColors.textTertiary)
+                        }
+                    }
+
                     // Google API Key (only show when Google is selected for Live AI)
                     if providerManager.liveAIProvider == .google {
                         Button {
@@ -264,18 +284,6 @@ struct SettingsView: View {
                                     .font(AppTypography.caption)
                                     .foregroundColor(AppColors.textTertiary)
                             }
-                        }
-                    }
-
-                    Button {
-                        showOpenAIAPIKeySettings = true
-                    } label: {
-                        HStack {
-                            Image(systemName: "key.fill")
-                            Text("OpenAI API Key")
-                            Spacer()
-                            Text(APIKeyManager.shared.hasOpenAIAPIKey() ? "Configured" : "Not configured")
-                                .font(AppTypography.caption)
                         }
                     }
 
@@ -398,6 +406,11 @@ struct SettingsView: View {
             .sheet(isPresented: $showOpenAIAPIKeySettings) {
                 OpenAIAPIKeySettingsView()
             }
+            .onChange(of: showOpenAIAPIKeySettings) { isShowing in
+                if !isShowing {
+                    refreshAPIKeyStatus()
+                }
+            }
             .sheet(isPresented: $showGoogleAPIKeySettings) {
                 GoogleAPIKeySettingsView()
             }
@@ -446,22 +459,22 @@ struct SettingsView: View {
 
     private func languageDisplayName(_ code: String) -> String {
         switch code {
-        case "zh-CN": return "中文"
+        case "zh-CN": return "中国語"
         case "en-US": return "English"
         case "ja-JP": return "日本語"
         case "ko-KR": return "한국어"
         case "es-ES": return "Español"
         case "fr-FR": return "Français"
-        default: return "中文"
+        default: return "日本語"
         }
     }
 
     private func qualityDisplayName(_ code: String) -> String {
         switch code {
-        case "low": return "低画质"
-        case "medium": return "中画质"
-        case "high": return "高画质"
-        default: return "中画质"
+        case "low": return "低画質"
+        case "medium": return "標準画質"
+        case "high": return "高画質"
+        default: return "標準画質"
         }
     }
 }
@@ -900,7 +913,7 @@ struct LanguageSettingsView: View {
     @Environment(\.dismiss) private var dismiss
 
     let languages = [
-        ("zh-CN", "中文"),
+        ("zh-CN", "中国語"),
         ("en-US", "English"),
         ("ja-JP", "日本語"),
         ("ko-KR", "한국어"),
@@ -928,16 +941,16 @@ struct LanguageSettingsView: View {
                         }
                     }
                 } header: {
-                    Text("选择输出语言")
+                    Text("出力言語を選択")
                 } footer: {
-                    Text("AI 将使用该语言进行语音输出和文字回复")
+                    Text("AIの音声とテキストの言語を設定します")
                 }
             }
-            .navigationTitle("输出语言")
+            .navigationTitle("出力言語")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完成") {
+                    Button("完了") {
                         dismiss()
                     }
                 }

@@ -219,19 +219,19 @@ enum QuickVisionError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noDevice:
-            return "眼镜未连接，请先在 Meta View 中配对眼镜"
+            return "グラスが未接続です。Meta AIアプリでペアリングしてください"
         case .streamNotReady:
-            return "视频流启动失败，请检查眼镜连接状态"
+            return "映像を開始できません。グラスの接続を確認してください"
         case .frameTimeout:
-            return "等待视频帧超时，请重试"
+            return "映像の取得がタイムアウトしました。再試行してください"
         case .invalidImage:
-            return "无法处理图片"
+            return "画像を処理できません"
         case .emptyResponse:
-            return "AI返回空响应，请重试"
+            return "AIから応答がありません。再試行してください"
         case .invalidResponse:
-            return "无效的响应格式"
+            return "応答形式が無効です"
         case .apiError(let statusCode, let message):
-            return "API错误(\(statusCode)): \(message)"
+            return "APIエラー (\(statusCode)): \(message)"
         }
     }
 }

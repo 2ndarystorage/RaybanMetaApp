@@ -87,7 +87,7 @@ class OmniRealtimeService: NSObject {
 
     var onFunctionCall: ((String, [String: Any]) -> [String: Any])?
 
-    init(apiKey: String, provider: LiveAIProvider = .alibaba) {
+    init(apiKey: String, provider: LiveAIProvider = .openai) {
         self.apiKey = apiKey
         self.provider = provider
         super.init()

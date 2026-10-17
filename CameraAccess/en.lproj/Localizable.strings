@@ -4,8 +4,8 @@
  */
 
 // MARK: - App General
-"app.name" = "TurboMeta";
-"app.subtitle" = "RayBan Meta Assistant";
+"app.name" = "RaybanMeta OpenAI";
+"app.subtitle" = "OpenAI first, with Qwen and Gemini available";
 "ok" = "OK";
 "cancel" = "Cancel";
 "close" = "Close";

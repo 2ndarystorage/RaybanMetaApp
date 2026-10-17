@@ -1,4 +1,4 @@
-# TurboMeta AI Add — Ray-Ban Meta向けAIアシスタント
+# RaybanMeta-OpenAI — Ray-Ban Meta向けAIアシスタント
 
 [日本語](README.md) · [English](README_EN.md) · [简体中文](README_ZH.md)
 
@@ -6,7 +6,18 @@
 
 このリポジトリは [Turbo1123/turbometa-rayban-ai](https://github.com/Turbo1123/turbometa-rayban-ai) を基に、Ray-Ban Meta向けアプリのiOS版へ **OpenAI Realtime API、ウェイクワード、Function Calling、AI Router** を追加したものです。元のQwen Omni、Gemini Live、OpenRouter、Quick Vision、OpenClaw、RTMP配信などの機能も残しています。
 
+元の `RaybanMetaAIAdd` とは別のプロジェクトです。[Meta Glasses iOS OpenAI](https://github.com/kirill-markin/meta-glasses-ios-openai) を設計の参考にし、**OpenAI Realtimeを初期選択**にしています。Qwen OmniとGemini Liveも設定画面から切り替えられます。参考アプリのWeb検索・長期記憶機能は未実装です。
+
 > iOSアプリはソースコードからXcodeでビルドしてください。Android版も収録していますが、今回のOpenAI Realtime・Function Calling・AI Routerの追加はiOS版のみです。Androidの既存ウェイクワード機能は維持しています。
+
+## まず使うには
+
+1. **Metaの開発者設定を用意：** [Meta Wearables Developer Center](https://wearables.developer.meta.com/)でアプリを登録し、Meta App IDとClient Tokenを取得します。元アプリとは別のBundle IdentifierとURLスキームを使うため、このコピー用の登録が必要です。
+2. **Xcodeで設定：** `CameraAccess.xcodeproj`を開き、SigningのTeamを選びます。`META_APP_ID`と`CLIENT_TOKEN`をローカルのビルド設定へ入力します。値をGitHubへ含めないでください。
+3. **iPhoneで起動：** 眼鏡をMetaアプリとペアリングし、DAT SDKプレビューモードを有効にしてから、Xcodeで実機へインストールします。
+4. **AIのキーを登録：** アプリの設定画面でOpenAI APIキーを登録し、ホームのLive AIから会話を始めます。Qwen・Geminiを使う場合は各サービスのキーも登録し、Live AI Providerで切り替えます。
+
+詳しい設定とトラブル対処は[下の手順](#ios版のセットアップ)を参照してください。APIキーなしでも画面の確認はできますが、AI会話には対応サービスのキーと通信環境が必要です。
 
 ## 今回追加した機能
 
@@ -48,13 +59,15 @@
 ## iOS版のセットアップ
 
 1. [Meta Wearables Developer Center](https://wearables.developer.meta.com/)でプロジェクトを作成し、iOS用の **Meta App ID** と **Client Token** を取得します。
-2. Xcodeで `CameraAccess.xcodeproj` を開き、署名用のTeamとBundle Identifierを設定します。`CameraAccess/Info.plist` は `$(META_APP_ID)` と `$(CLIENT_TOKEN)` を参照しているため、同名のXcodeビルド設定に取得した値を登録します。値をGitへコミットしないでください。
+2. Xcodeで `CameraAccess.xcodeproj` を開き、署名用のTeamとBundle Identifierを確認します。このコピーには元アプリと同時インストールするため、末尾が `.openai` の別Bundle Identifierと `turbometa-openai://` のURLスキームを設定しています。Meta側にもこの識別子・スキームに対応するアプリ登録が必要です。`CameraAccess/Info.plist` は `$(META_APP_ID)` と `$(CLIENT_TOKEN)` を参照しているため、同名のXcodeビルド設定に新しいアプリの値を登録します。値をGitへコミットしないでください。
 3. Meta View／Meta AIアプリで眼鏡をペアリングし、元プロジェクトの手順に従って **DAT SDKプレビューモード** を有効にします。元READMEでは、アプリ情報画面のバージョン番号を5回タップする手順が案内されています。
-4. iPhoneを接続してXcodeからビルド・起動します。アプリの設定画面で利用するAIサービスのAPIキーを保存します。
+4. iPhoneを接続してXcodeからビルド・起動します。別Bundle Identifierのため、元アプリのKeychainに保存したAPIキーは引き継がれません。アプリの設定画面で利用するAIサービスのAPIキーを再登録します。
+
+日本語のiPhoneではアプリの画面表示が日本語になります。必要に応じて **設定 → アプリの言語 → 日本語** を選んで再起動してください。AIの音声・テキストの言語は **設定 → 出力言語** で別に選択できます。以前保存した会話履歴やカスタム指示は自動翻訳されません。Android版の表示言語は今回の変更対象外です。
 
 ### 追加機能の設定
 
-1. **設定 → Live AI Provider** で「OpenAI Realtime」または「AI Router (Auto)」を選びます。既存設定の既定値はQwenのままです。
+1. **設定 → Live AI Provider** で「OpenAI Realtime」「Alibaba Cloud Qwen Omni」「Google Gemini Live」「AI Router (Auto)」を選べます。新規インストール時の初期選択はOpenAIです。保存済みの選択がある場合はその設定を維持します。
 2. OpenAIを使う場合は **設定 → OpenAI API Key** からキーを登録します。キーはiOSのKeychainに保存されます。AutoでQwenを使う場合は選択中の地域に対応するAlibabaキー、Geminiを使う場合はGoogleキーを設定してください。
 3. ウェイクワードを使う場合は **「Wake phrase: Hey Turbo」** を有効にし、マイクと音声認識の権限を許可します。眼鏡を接続してLive AI画面を開き、「Hey Turbo」と話すか、画面の「Start now」を押してください。
 
@@ -71,7 +84,7 @@
 
 ### Quick VisionとSiri
 
-アプリでAPIキーと眼鏡の接続を設定した後、iPhoneの「ショートカット」アプリでTurboMetaの「快速识图」アクションを追加します。ショートカットに好きな名前を付け、Siriでその名前を呼ぶと、撮影・画像解析・音声読み上げを開始できます。必要に応じてiPhoneのアクションボタンやロック画面ウィジェットにも割り当てられます。初回はTurboMetaを一度開き、機能を初期化してください。
+アプリでAPIキーと眼鏡の接続を設定した後、iPhoneの「ショートカット」アプリでTurboMetaの「クイック画像認識」アクションを追加します。ショートカットに好きな名前を付け、Siriでその名前を呼ぶと、撮影・画像解析・音声読み上げを開始できます。必要に応じてiPhoneのアクションボタンやロック画面ウィジェットにも割り当てられます。初回はTurboMetaを一度開き、機能を初期化してください。
 
 ### OpenClaw
 
@@ -100,7 +113,7 @@ Live AIはホーム画面から開き、接続後に話しかけます。Quick V
 
 ## ビルド・検証状況
 
-追加部分のSwift構文、`Info.plist`、Git差分の静的検証は通過しています。iOSのフルビルドは、実行環境でSwiftPMの依存パッケージ処理が制限されたため未確認です。眼鏡を使った実機検証も未実施です。
+追加部分のSwift構文、`Info.plist`、Git差分の静的検証は通過しています。この作業環境でのiOSフルビルドは、SwiftPMがXcodeの共有キャッシュに書き込めず、依存解決段階で停止したため未確認です。眼鏡を使った実機検証もこの環境では未実施です。Xcodeでのビルド成功だけでは、眼鏡接続・音声・カメラ・各AIサービスの動作確認にはなりません。
 
 ## ライセンスと謝辞
 

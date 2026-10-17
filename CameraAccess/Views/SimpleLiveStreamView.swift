@@ -31,7 +31,7 @@ struct SimpleLiveStreamView: View {
                     ProgressView()
                         .scaleEffect(1.5)
                         .foregroundColor(.white)
-                    Text("正在连接视频流...")
+                    Text("映像に接続中…")
                         .font(AppTypography.body)
                         .foregroundColor(.white)
                 }
@@ -57,7 +57,7 @@ struct SimpleLiveStreamView: View {
                             Circle()
                                 .fill(streamViewModel.isStreaming ? Color.red : Color.gray)
                                 .frame(width: 8, height: 8)
-                            Text(streamViewModel.isStreaming ? "直播中" : "未连接")
+                            Text(streamViewModel.isStreaming ? "配信中" : "未接続")
                                 .font(AppTypography.caption)
                                 .foregroundColor(.white)
                         }
@@ -72,19 +72,19 @@ struct SimpleLiveStreamView: View {
 
                     // Instructions
                     VStack(spacing: AppSpacing.md) {
-                        Text("直播提示")
+                        Text("配信の手順")
                             .font(AppTypography.headline)
                             .foregroundColor(.white)
 
-                        Text("1. 打开抖音/快手等直播平台")
+                        Text("1. 配信プラットフォームを開く")
                             .font(AppTypography.caption)
                             .foregroundColor(.white.opacity(0.8))
 
-                        Text("2. 选择屏幕录制功能")
+                        Text("2. 画面収録を選択する")
                             .font(AppTypography.caption)
                             .foregroundColor(.white.opacity(0.8))
 
-                        Text("3. 开始录制此画面即可直播")
+                        Text("3. この画面の収録を始めて配信する")
                             .font(AppTypography.caption)
                             .foregroundColor(.white.opacity(0.8))
                     }

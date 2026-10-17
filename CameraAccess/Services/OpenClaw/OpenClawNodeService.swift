@@ -553,7 +553,7 @@ class OpenClawNodeService: NSObject, ObservableObject {
         reconnectAttempts += 1
         if reconnectAttempts > Self.maxReconnectAttempts {
             print("[OpenClaw] Max reconnect attempts reached, giving up")
-            connectionState = .error("连接失败，已重试 \(Self.maxReconnectAttempts) 次")
+            connectionState = .error("接続できませんでした。\(Self.maxReconnectAttempts)回再試行しました")
             shouldReconnect = false
             return
         }

@@ -65,6 +65,7 @@
 		4BA57AEF2EF8227E002EC214 /* HomeScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA57AAF2EF8227E002EC214 /* HomeScreenView.swift */; };
 		4BA57AF02EF8227E002EC214 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4BA57A882EF8227E002EC214 /* Localizable.strings */; };
 		4BA57AF12EF8227E002EC214 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 4BA57AC12EF8227E002EC214 /* Localizable.strings */; };
+		AB1234012340123401234001 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB1234012340123401234002 /* Localizable.strings */; };
 		4BA57AF32EF823ED002EC214 /* PermissionsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA57AF22EF823ED002EC214 /* PermissionsManager.swift */; };
 		4BA57AF62EF82400002EC214 /* PermissionsRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA57AF52EF82400002EC214 /* PermissionsRequestView.swift */; };
 		4BB5DFEF2F06C05E00AF7BD0 /* LiveAIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BB5DFEE2F06C05E00AF7BD0 /* LiveAIModels.swift */; };
@@ -176,6 +177,7 @@
 		4BA57ABD2EF8227E002EC214 /* TurboMetaHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TurboMetaHomeView.swift; sourceTree = "<group>"; };
 		4BA57ABE2EF8227E002EC214 /* VisionRecognitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionRecognitionView.swift; sourceTree = "<group>"; };
 		4BA57AC02EF8227E002EC214 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = Localizable.strings; sourceTree = "<group>"; };
+		AB1234012340123401234003 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = Localizable.strings; sourceTree = "<group>"; };
 		4BA57AF22EF823ED002EC214 /* PermissionsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsManager.swift; sourceTree = "<group>"; };
 		4BA57AF52EF82400002EC214 /* PermissionsRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsRequestView.swift; sourceTree = "<group>"; };
 		4BB5DFEE2F06C05E00AF7BD0 /* LiveAIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveAIModels.swift; sourceTree = "<group>"; };
@@ -398,6 +400,14 @@
 			path = "zh-Hans.lproj";
 			sourceTree = "<group>";
 		};
+		AB1234012340123401234004 /* ja.lproj */ = {
+			isa = PBXGroup;
+			children = (
+				AB1234012340123401234002 /* Localizable.strings */,
+			);
+			path = ja.lproj;
+			sourceTree = "<group>";
+		};
 		5A5A5A5A5A5A5A5A5A5A5A5A = {
 			isa = PBXGroup;
 			children = (
@@ -428,6 +438,7 @@
 			isa = PBXGroup;
 			children = (
 				4BA57A892EF8227E002EC214 /* en.lproj */,
+				AB1234012340123401234004 /* ja.lproj */,
 				4BA57A8C2EF8227E002EC214 /* Models */,
 				4BA57A922EF8227E002EC214 /* Services */,
 				4BA57A942EF8227E002EC214 /* Utilities */,
@@ -524,6 +535,7 @@
 				en,
 				Base,
 				"zh-Hans",
+				ja,
 			);
 			mainGroup = 5A5A5A5A5A5A5A5A5A5A5A5A;
 			packageReferences = (
@@ -547,6 +559,7 @@
 			files = (
 				4BA57AF02EF8227E002EC214 /* Localizable.strings in Resources */,
 				4BA57AF12EF8227E002EC214 /* Localizable.strings in Resources */,
+				AB1234012340123401234001 /* Localizable.strings in Resources */,
 				8FD96B8D2E6F0A9800F56AB1 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -681,6 +694,14 @@
 			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
+		AB1234012340123401234002 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				AB1234012340123401234003 /* ja */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
@@ -695,18 +716,18 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 4CXJZWV2GC;
+				DEVELOPMENT_TEAM = BM625ZWVS9;
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
 				INFOPLIST_FILE = CameraAccess/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = " TurboMeta";
+				INFOPLIST_KEY_CFBundleDisplayName = "RaybanMeta OpenAI";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.4.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.glassai.app1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.akirashow.raybanmetaaiadd.ed1200c563.openai;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -725,17 +746,17 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 2X7K2P6UKK;
+				DEVELOPMENT_TEAM = BM625ZWVS9;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = CameraAccess/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = " TurboMeta";
+				INFOPLIST_KEY_CFBundleDisplayName = "RaybanMeta OpenAI";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.4.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.smartview.glassai.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.akirashow.raybanmetaaiadd.ed1200c563.openai;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -757,7 +778,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.smartview.glassai.appTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.akirashow.raybanmetaaiadd.ed1200c563.openai.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -785,7 +806,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.smartview.glassai.appTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.akirashow.raybanmetaaiadd.ed1200c563.openai.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

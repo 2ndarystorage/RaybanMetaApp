@@ -18,7 +18,7 @@ struct RecordsView: View {
                             selectedTab = 0
                         }
 
-                        RecordTabButton(title: "实时翻译", isSelected: selectedTab == 1) {
+                        RecordTabButton(title: "リアルタイム翻訳", isSelected: selectedTab == 1) {
                             selectedTab = 1
                         }
 
@@ -58,7 +58,7 @@ struct RecordsView: View {
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
-            .navigationTitle("记录")
+            .navigationTitle("履歴")
         }
     }
 }
@@ -118,11 +118,11 @@ struct LiveAIRecordsView: View {
                         .font(.system(size: 64))
                         .foregroundColor(AppColors.liveAI.opacity(0.6))
 
-                    Text("暂无 Live AI 对话记录")
+                    Text("Live AIの会話履歴はありません")
                         .font(AppTypography.title2)
                         .foregroundColor(AppColors.textPrimary)
 
-                    Text("使用 Live AI 功能后记录将显示在这里")
+                    Text("Live AIを使用すると履歴がここに表示されます")
                         .font(AppTypography.subheadline)
                         .foregroundColor(AppColors.textSecondary)
                         .multilineTextAlignment(.center)
@@ -142,7 +142,7 @@ struct LiveAIRecordsView: View {
                                     Button(role: .destructive) {
                                         viewModel.deleteConversation(conversation.id)
                                     } label: {
-                                        Label("删除", systemImage: "trash")
+                                        Label("削除", systemImage: "trash")
                                     }
                                 }
                         }
@@ -228,7 +228,7 @@ struct ConversationCell: View {
                 HStack(spacing: AppSpacing.xs) {
                     Image(systemName: "bubble.left.and.bubble.right")
                         .font(AppTypography.caption)
-                    Text("\(conversation.messageCount) 条消息")
+                    Text("メッセージ \(conversation.messageCount)件")
                         .font(AppTypography.caption)
                 }
                 .foregroundColor(AppColors.textSecondary)
@@ -256,11 +256,11 @@ struct TranslationRecordsView: View {
                     .font(.system(size: 64))
                     .foregroundColor(AppColors.translate.opacity(0.6))
 
-                Text("暂无翻译记录")
+                Text("翻訳履歴はありません")
                     .font(AppTypography.title2)
                     .foregroundColor(AppColors.textPrimary)
 
-                Text("功能即将上线")
+                Text("近日公開")
                     .font(AppTypography.subheadline)
                     .foregroundColor(AppColors.textSecondary)
             }
@@ -281,11 +281,11 @@ struct LeanEatRecordsView: View {
                     .font(.system(size: 64))
                     .foregroundColor(AppColors.leanEat.opacity(0.6))
 
-                Text("暂无卡路里识别记录")
+                Text("カロリー認識の履歴はありません")
                     .font(AppTypography.title2)
                     .foregroundColor(AppColors.textPrimary)
 
-                Text("功能即将上线")
+                Text("近日公開")
                     .font(AppTypography.subheadline)
                     .foregroundColor(AppColors.textSecondary)
             }
@@ -306,11 +306,11 @@ struct WordLearnRecordsView: View {
                     .font(.system(size: 64))
                     .foregroundColor(AppColors.wordLearn.opacity(0.6))
 
-                Text("暂无单词学习记录")
+                Text("単語学習の履歴はありません")
                     .font(AppTypography.title2)
                     .foregroundColor(AppColors.textPrimary)
 
-                Text("功能即将上线")
+                Text("近日公開")
                     .font(AppTypography.subheadline)
                     .foregroundColor(AppColors.textSecondary)
             }

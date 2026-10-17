@@ -20,11 +20,11 @@ import SwiftUI
 
 @available(iOS 16.0, *)
 struct QuickVisionIntent: AppIntent {
-    static var title: LocalizedStringResource = "快速识图"
-    static var description = IntentDescription("使用 Ray-Ban Meta 眼镜拍照并识别图像内容")
+    static var title: LocalizedStringResource = "クイック画像認識"
+    static var description = IntentDescription("Ray-Ban Metaで撮影して画像を認識します")
     static var openAppWhenRun: Bool = false
 
-    @Parameter(title: "自定义提示")
+    @Parameter(title: "カスタム指示")
     var customPrompt: String?
 
     @MainActor
@@ -39,8 +39,8 @@ struct QuickVisionIntent: AppIntent {
 
 @available(iOS 16.0, *)
 struct QuickVisionHealthIntent: AppIntent {
-    static var title: LocalizedStringResource = "健康识图"
-    static var description = IntentDescription("分析食品/饮料的健康程度")
+    static var title: LocalizedStringResource = "食品の健康分析"
+    static var description = IntentDescription("食品や飲み物の健康面を分析します")
     static var openAppWhenRun: Bool = false
 
     @MainActor
@@ -55,8 +55,8 @@ struct QuickVisionHealthIntent: AppIntent {
 
 @available(iOS 16.0, *)
 struct QuickVisionBlindIntent: AppIntent {
-    static var title: LocalizedStringResource = "环境描述"
-    static var description = IntentDescription("为视障用户详细描述眼前的环境")
+    static var title: LocalizedStringResource = "周囲の説明"
+    static var description = IntentDescription("目の前の環境を詳しく説明します")
     static var openAppWhenRun: Bool = false
 
     @MainActor
@@ -71,8 +71,8 @@ struct QuickVisionBlindIntent: AppIntent {
 
 @available(iOS 16.0, *)
 struct QuickVisionReadingIntent: AppIntent {
-    static var title: LocalizedStringResource = "朗读文字"
-    static var description = IntentDescription("识别并朗读图片中的文字内容")
+    static var title: LocalizedStringResource = "文字の読み上げ"
+    static var description = IntentDescription("画像内の文字を認識して読み上げます")
     static var openAppWhenRun: Bool = false
 
     @MainActor
@@ -87,8 +87,8 @@ struct QuickVisionReadingIntent: AppIntent {
 
 @available(iOS 16.0, *)
 struct QuickVisionTranslateIntent: AppIntent {
-    static var title: LocalizedStringResource = "翻译文字"
-    static var description = IntentDescription("识别并翻译图片中的外语文字")
+    static var title: LocalizedStringResource = "文字の翻訳"
+    static var description = IntentDescription("画像内の外国語を認識して翻訳します")
     static var openAppWhenRun: Bool = false
 
     @MainActor
@@ -103,8 +103,8 @@ struct QuickVisionTranslateIntent: AppIntent {
 
 @available(iOS 16.0, *)
 struct QuickVisionEncyclopediaIntent: AppIntent {
-    static var title: LocalizedStringResource = "百科识别"
-    static var description = IntentDescription("识别物体并提供百科知识介绍")
+    static var title: LocalizedStringResource = "ものを解説"
+    static var description = IntentDescription("ものを認識して詳しく解説します")
     static var openAppWhenRun: Bool = false
 
     @MainActor
@@ -121,11 +121,11 @@ struct QuickVisionEncyclopediaIntent: AppIntent {
 @MainActor
 private func formatResult(_ manager: QuickVisionManager) -> some IntentResult & ProvidesDialog {
     if let result = manager.lastResult {
-        return .result(dialog: "识别完成：\(result)")
+        return .result(dialog: "認識しました：\(result)")
     } else if let error = manager.errorMessage {
-        return .result(dialog: "识别失败：\(error)")
+        return .result(dialog: "認識に失敗しました：\(error)")
     } else {
-        return .result(dialog: "识别完成")
+        return .result(dialog: "認識しました")
     }
 }
 
@@ -138,12 +138,12 @@ struct TurboMetaShortcuts: AppShortcutsProvider {
         AppShortcut(
             intent: QuickVisionIntent(),
             phrases: [
-                "用 \(.applicationName) 识图",
-                "用 \(.applicationName) 看看这是什么",
-                "\(.applicationName) 快速识图",
-                "\(.applicationName) 拍照识别"
+                "\(.applicationName) で画像を認識",
+                "\(.applicationName) でこれは何か調べて",
+                "\(.applicationName) で写真を認識",
+                "\(.applicationName) で撮影して調べて"
             ],
-            shortTitle: "快速识图",
+            shortTitle: "画像認識",
             systemImageName: "eye.circle.fill"
         )
 
@@ -151,11 +151,11 @@ struct TurboMetaShortcuts: AppShortcutsProvider {
         AppShortcut(
             intent: QuickVisionHealthIntent(),
             phrases: [
-                "用 \(.applicationName) 分析健康",
-                "\(.applicationName) 健康识图",
-                "\(.applicationName) 这个食物健康吗"
+                "\(.applicationName) で食品を分析",
+                "\(.applicationName) で健康分析",
+                "\(.applicationName) でこの食べ物を調べて"
             ],
-            shortTitle: "健康识图",
+            shortTitle: "食品の健康分析",
             systemImageName: "heart.circle.fill"
         )
 
@@ -163,11 +163,11 @@ struct TurboMetaShortcuts: AppShortcutsProvider {
         AppShortcut(
             intent: QuickVisionBlindIntent(),
             phrases: [
-                "用 \(.applicationName) 描述环境",
-                "\(.applicationName) 看看周围有什么",
-                "\(.applicationName) 帮我看看前面"
+                "\(.applicationName) で周囲を説明",
+                "\(.applicationName) で周りを見て",
+                "\(.applicationName) で前方を確認"
             ],
-            shortTitle: "环境描述",
+            shortTitle: "周囲の説明",
             systemImageName: "figure.walk.circle.fill"
         )
 
@@ -175,11 +175,11 @@ struct TurboMetaShortcuts: AppShortcutsProvider {
         AppShortcut(
             intent: QuickVisionReadingIntent(),
             phrases: [
-                "用 \(.applicationName) 朗读文字",
-                "\(.applicationName) 读一下这个",
-                "\(.applicationName) 帮我读文字"
+                "\(.applicationName) で文字を読んで",
+                "\(.applicationName) でこれを読み上げて",
+                "\(.applicationName) で文章を読んで"
             ],
-            shortTitle: "朗读文字",
+            shortTitle: "文字の読み上げ",
             systemImageName: "text.viewfinder"
         )
 
@@ -187,11 +187,11 @@ struct TurboMetaShortcuts: AppShortcutsProvider {
         AppShortcut(
             intent: QuickVisionTranslateIntent(),
             phrases: [
-                "用 \(.applicationName) 翻译",
-                "\(.applicationName) 翻译这个",
-                "\(.applicationName) 这个是什么意思"
+                "\(.applicationName) で翻訳して",
+                "\(.applicationName) でこれを訳して",
+                "\(.applicationName) でこの意味を教えて"
             ],
-            shortTitle: "翻译文字",
+            shortTitle: "文字の翻訳",
             systemImageName: "character.bubble.fill"
         )
 
@@ -199,11 +199,11 @@ struct TurboMetaShortcuts: AppShortcutsProvider {
         AppShortcut(
             intent: QuickVisionEncyclopediaIntent(),
             phrases: [
-                "用 \(.applicationName) 介绍这个",
-                "\(.applicationName) 百科识别",
-                "\(.applicationName) 这是什么东西"
+                "\(.applicationName) でこれを解説",
+                "\(.applicationName) でものを調べて",
+                "\(.applicationName) でこれは何か教えて"
             ],
-            shortTitle: "百科识别",
+            shortTitle: "ものを解説",
             systemImageName: "books.vertical.circle.fill"
         )
 
@@ -211,12 +211,12 @@ struct TurboMetaShortcuts: AppShortcutsProvider {
         AppShortcut(
             intent: LiveAIIntent(),
             phrases: [
-                "用 \(.applicationName) 实时对话",
-                "\(.applicationName) 实时对话",
-                "开始 \(.applicationName) 实时对话",
-                "\(.applicationName) 开始对话"
+                "\(.applicationName) でリアルタイム会話",
+                "\(.applicationName) で会話を開始",
+                "\(.applicationName) と話す",
+                "\(.applicationName) で話し始める"
             ],
-            shortTitle: "实时对话",
+            shortTitle: "リアルタイム会話",
             systemImageName: "brain.head.profile"
         )
 
@@ -224,11 +224,11 @@ struct TurboMetaShortcuts: AppShortcutsProvider {
         AppShortcut(
             intent: StopLiveAIIntent(),
             phrases: [
-                "\(.applicationName) 停止实时对话",
-                "停止 \(.applicationName) 实时对话",
-                "\(.applicationName) 结束对话"
+                "\(.applicationName) の会話を停止",
+                "\(.applicationName) で会話を終了",
+                "\(.applicationName) の会話を終える"
             ],
-            shortTitle: "停止实时对话",
+            shortTitle: "会話を停止",
             systemImageName: "stop.circle.fill"
         )
     }
@@ -290,7 +290,7 @@ class QuickVisionManager: ObservableObject {
 
         guard let streamViewModel = streamViewModel else {
             print("❌ [QuickVision] StreamViewModel not set")
-            tts.speak("识图功能未初始化，请先打开应用")
+            tts.speak("画像認識を利用できません。先にアプリを開いてください")
             return
         }
 
@@ -302,14 +302,14 @@ class QuickVisionManager: ObservableObject {
 
         // 获取 API Key
         guard let apiKey = APIKeyManager.shared.getAPIKey(), !apiKey.isEmpty else {
-            errorMessage = "请先在设置中配置 API Key"
-            tts.speak("请先在设置中配置 API Key")
+            errorMessage = "設定でAPIキーを登録してください"
+            tts.speak("設定でAPIキーを登録してください")
             isProcessing = false
             return
         }
 
         // 播报开始
-        tts.speak("正在识别", apiKey: apiKey)
+        tts.speak("認識中です", apiKey: apiKey)
 
         // 获取提示词
         let prompt = customPrompt ?? QuickVisionModeManager.shared.getPrompt(for: mode)
@@ -402,7 +402,7 @@ class QuickVisionManager: ObservableObject {
         } catch {
             errorMessage = error.localizedDescription
             print("❌ [QuickVision] Error: \(error)")
-            tts.speak("识别失败，\(error.localizedDescription)", apiKey: apiKey)
+            tts.speak("認識に失敗しました。\(error.localizedDescription)", apiKey: apiKey)
             await streamViewModel.stopSession()
         }
 

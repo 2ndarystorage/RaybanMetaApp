@@ -12,7 +12,7 @@ class VisionRecognitionViewModel: ObservableObject {
     @Published var isAnalyzing = false
     @Published var recognitionResult: String?
     @Published var errorMessage: String?
-    @Published var customPrompt: String = "图中描绘的是什么景象?"
+    @Published var customPrompt: String = "画像には何が写っていますか？日本語で説明してください。"
 
     private let apiService: VisionAPIService
     private let photo: UIImage
@@ -52,11 +52,11 @@ class VisionRecognitionViewModel: ObservableObject {
     // MARK: - Quick Prompts
 
     static let quickPrompts = [
-        "图中描绘的是什么景象?",
-        "请详细描述这张图片的内容",
-        "这张图片中有哪些物体?",
-        "请用英文描述这张图片",
-        "这是什么地方?",
-        "图中的人在做什么?"
+        "画像には何が写っていますか？",
+        "この画像を詳しく説明してください",
+        "どのような物がありますか？",
+        "この画像を日本語で説明してください",
+        "ここはどこですか？",
+        "写っている人は何をしていますか？"
     ]
 }

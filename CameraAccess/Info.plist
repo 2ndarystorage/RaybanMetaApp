@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>TurboMeta</string>
+	<string>RaybanMeta OpenAI</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>TurboMeta</string>
+	<string>RaybanMeta OpenAI</string>
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
@@ -27,7 +27,7 @@
 			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>turbometa</string>
+				<string>turbometa-openai</string>
 			</array>
 		</dict>
 	</array>
@@ -40,7 +40,7 @@
 	<key>MWDAT</key>
 	<dict>
 		<key>AppLinkURLScheme</key>
-		<string>turbometa://</string>
+		<string>turbometa-openai://</string>
 		<key>MetaAppID</key>
 		<string>$(META_APP_ID)</string>
 		<key>ClientToken</key>
@@ -54,15 +54,15 @@
 		<true/>
 	</dict>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Needed to connect to Meta AI Glasses</string>
+	<string>Meta AIグラスへの接続にBluetoothを使用します。</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>TurboMeta 需要访问麦克风以实现与智能眼镜的实时语音对话功能。</string>
+	<string>スマートグラスでのリアルタイム音声会話にマイクを使用します。</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>TurboMeta uses speech recognition to listen for the optional Hey Turbo wake phrase while the app is open.</string>
+	<string>アプリ起動中にウェイクワードを認識するため音声認識を使用します。</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>TurboMeta 需要访问相册以保存从智能眼镜拍摄的照片。</string>
+	<string>スマートグラスで撮影した写真を保存するため写真へのアクセスを使用します。</string>
 	<key>NSSiriUsageDescription</key>
-	<string>TurboMeta 需要 Siri 权限以支持语音快捷指令触发快速识图功能。</string>
+	<string>音声ショートカットで画像認識を起動するためSiriを使用します。</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
