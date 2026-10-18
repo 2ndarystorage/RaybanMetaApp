@@ -19,56 +19,55 @@ import Foundation
 import MWDATCore
 import SwiftUI
 
-#if DEBUG
-import MWDATMockDevice
-#endif
-
 @main
 struct TurboMetaApp: App {
-  #if DEBUG
-  // Debug menu for simulating device connections during development
-  @StateObject private var debugMenuViewModel = DebugMenuViewModel(mockDeviceKit: MockDeviceKit.shared)
-  #endif
-  private let wearables: WearablesInterface
-  @StateObject private var wearablesViewModel: WearablesViewModel
+  private let wearables: WearablesInterface?
+  @State private var showSetupNotice = false
 
   init() {
     do {
       try Wearables.configure()
-      print("✅ [TurboMeta] Wearables SDK configured successfully")
+      wearables = Wearables.shared
     } catch {
-      print("❌ [TurboMeta] Wearables.configure() failed: \(error) | \(error.localizedDescription)")
+      // Accessing Wearables.shared after a failed configure() traps inside the SDK.
+      // Keep the welcome screen available until this app's Meta configuration is supplied.
+      wearables = nil
     }
-    let wearables = Wearables.shared
-    self.wearables = wearables
-    self._wearablesViewModel = StateObject(wrappedValue: WearablesViewModel(wearables: wearables))
   }
 
   var body: some Scene {
     WindowGroup {
-      // Main app view with access to the shared Wearables SDK instance
-      // The Wearables.shared singleton provides the core DAT API
-      MainAppView(wearables: Wearables.shared, viewModel: wearablesViewModel)
-        // Show error alerts for view model failures
-        .alert("Error", isPresented: $wearablesViewModel.showError) {
-          Button("OK") {
-            wearablesViewModel.dismissError()
+      if let wearables {
+        ConfiguredWearablesRoot(wearables: wearables)
+      } else {
+        UrbanWelcomeContent(isConnecting: false) { showSetupNotice = true }
+          .preferredColorScheme(.light)
+          .alert("グラスの接続設定が必要です", isPresented: $showSetupNotice) {
+            Button("OK", role: .cancel) {}
+          } message: {
+            Text("Metaとの接続を初期化できませんでした。このアプリのMeta App ID・Client TokenとiPhoneの対応状況を確認してください。")
           }
-        } message: {
-          Text(wearablesViewModel.errorMessage)
-        }
-        #if DEBUG
-      // Bug 图标已隐藏
-      // .sheet(isPresented: $debugMenuViewModel.showDebugMenu) {
-      //   MockDeviceKitView(viewModel: debugMenuViewModel.mockDeviceKitViewModel)
-      // }
-      // .overlay {
-      //   DebugMenuView(debugMenuViewModel: debugMenuViewModel)
-      // }
-        #endif
-
-      // Registration view handles the flow for connecting to the glasses via Meta AI
-      RegistrationView(viewModel: wearablesViewModel)
+      }
     }
+  }
+}
+
+private struct ConfiguredWearablesRoot: View {
+  let wearables: WearablesInterface
+  @StateObject private var viewModel: WearablesViewModel
+
+  init(wearables: WearablesInterface) {
+    self.wearables = wearables
+    _viewModel = StateObject(wrappedValue: WearablesViewModel(wearables: wearables))
+  }
+
+  var body: some View {
+    MainAppView(wearables: wearables, viewModel: viewModel)
+      .alert("Error", isPresented: $viewModel.showError) {
+        Button("OK") { viewModel.dismissError() }
+      } message: {
+        Text(viewModel.errorMessage)
+      }
+      .background { RegistrationView(viewModel: viewModel) }
   }
 }

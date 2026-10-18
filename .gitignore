@@ -31,6 +31,7 @@ Pods/
 Carthage/Build/
 
 # macOS
+._*
 .DS_Store
 
 # Android

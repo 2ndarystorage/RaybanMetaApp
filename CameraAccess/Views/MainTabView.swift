@@ -16,7 +16,7 @@ struct MainTabView: View {
             // Home - Feature entry
             TurboMetaHomeView(streamViewModel: streamViewModel, wearablesViewModel: wearablesViewModel)
                 .tabItem {
-                    Label("tab.home".localized, systemImage: "house.fill")
+                    Label("tab.home".localized, systemImage: "house")
                 }
                 .tag(0)
 
@@ -30,17 +30,19 @@ struct MainTabView: View {
             // Gallery
             GalleryView()
                 .tabItem {
-                    Label("tab.gallery".localized, systemImage: "photo.on.rectangle")
+                    Label("tab.gallery".localized, systemImage: "rectangle.stack")
                 }
                 .tag(2)
 
             // Settings
             SettingsView(streamViewModel: streamViewModel)
                 .tabItem {
-                    Label("tab.settings".localized, systemImage: "person.fill")
+                    Label("tab.settings".localized, systemImage: "slider.horizontal.3")
                 }
                 .tag(3)
         }
-        .accentColor(AppColors.primary)
+        .tint(Color.primary)
+        .toolbarBackground(Color(red: 0.957, green: 0.953, blue: 0.933), for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
     }
 }

@@ -82,6 +82,10 @@
 		LT0003000300030003 /* LiveTranslateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = LT1003000300030003 /* LiveTranslateViewModel.swift */; };
 		LT0004000400040004 /* LiveTranslateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = LT1004000400040004 /* LiveTranslateView.swift */; };
 		LT0005000500050005 /* LiveTranslateSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = LT1005000500050005 /* LiveTranslateSettingsView.swift */; };
+		B00C10000000000000000001 /* BookSummaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00C00000000000000000001 /* BookSummaryService.swift */; };
+		B00C10000000000000000002 /* BookReaderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00C00000000000000000002 /* BookReaderModel.swift */; };
+		B00C10000000000000000003 /* BookReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00C00000000000000000003 /* BookReaderView.swift */; };
+		A18A90000000000000000002 /* UrbanHomeDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18A90000000000000000001 /* UrbanHomeDashboard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -185,6 +189,10 @@
 		LT1003000300030003 /* LiveTranslateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveTranslateViewModel.swift; sourceTree = "<group>"; };
 		LT1004000400040004 /* LiveTranslateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveTranslateView.swift; sourceTree = "<group>"; };
 		LT1005000500050005 /* LiveTranslateSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveTranslateSettingsView.swift; sourceTree = "<group>"; };
+		B00C00000000000000000001 /* BookSummaryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookSummaryService.swift; sourceTree = "<group>"; };
+		B00C00000000000000000002 /* BookReaderModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookReaderModel.swift; sourceTree = "<group>"; };
+		B00C00000000000000000003 /* BookReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookReaderView.swift; sourceTree = "<group>"; };
+		A18A90000000000000000001 /* UrbanHomeDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UrbanHomeDashboard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -249,6 +257,7 @@
 		4BA57A922EF8227E002EC214 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				B00C00000000000000000001 /* BookSummaryService.swift */,
 				4BA57A8D2EF8227E002EC214 /* ConversationStorage.swift */,
 				4BA57A8E2EF8227E002EC214 /* LeanEatService.swift */,
 				4BA57A8F2EF8227E002EC214 /* OmniRealtimeService.swift */,
@@ -293,6 +302,7 @@
 		4BA57AA12EF8227E002EC214 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				B00C00000000000000000002 /* BookReaderModel.swift */,
 				4BA57A9A2EF8227E002EC214 /* MockDeviceKit */,
 				4BA57A9B2EF8227E002EC214 /* DebugMenuViewModel.swift */,
 				4BA57A9C2EF8227E002EC214 /* LeanEatViewModel.swift */,
@@ -330,6 +340,8 @@
 		4BA57ABF2EF8227E002EC214 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				A18A90000000000000000001 /* UrbanHomeDashboard.swift */,
+				B00C00000000000000000003 /* BookReaderView.swift */,
 				4BB5DFF22F06C07A00AF7BD0 /* LiveAISettingsView.swift */,
 				4BA57AF52EF82400002EC214 /* PermissionsRequestView.swift */,
 				4BA57AA72EF8227E002EC214 /* Components */,
@@ -534,6 +546,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A18A90000000000000000002 /* UrbanHomeDashboard.swift in Sources */,
+				B00C10000000000000000003 /* BookReaderView.swift in Sources */,
+				B00C10000000000000000002 /* BookReaderModel.swift in Sources */,
+				B00C10000000000000000001 /* BookSummaryService.swift in Sources */,
 				8FD96B7F2E6F0A9800F56AB1 /* TurboMetaApp.swift in Sources */,
 				4BA57AC32EF8227E002EC214 /* ConversationDetailView.swift in Sources */,
 				4BA57AC42EF8227E002EC214 /* CircleButton.swift in Sources */,
