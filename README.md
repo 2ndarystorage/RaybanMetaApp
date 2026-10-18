@@ -1,157 +1,154 @@
-# RaybanMetaApp — Ray-Ban Meta向けAIアシスタント
+# RaybanMetaApp
 
-[RaybanMeta-OpenAI](https://github.com/2ndarystorage/RaybanMeta-OpenAI)をベースに、[RaybanmetaSummarizeBook](https://github.com/2ndarystorage/RaybanmetaSummarizeBook)の本の要約・日本語読み上げ機能を統合したiOSアプリです。グラスを主役にした実写調のホーム画面とウェルカム画面を追加しています。
+**いつもの街に、新しい視点を。**
 
-> **iOS版の最新構成（2026年10月18日）:** ホーム画面はLive AI、クイック画像認識、リアルタイム翻訳、LeanEatに加え、「本の要約」を追加しています。OpenClaw、RTMP配信、単独ライブ配信はiOSアプリから削除しました。英語・中国語READMEと画像は元プロジェクトの参考資料で、現在のiOS版と一致しない箇所があります。
+Ray-Ban Metaのカメラとマイクで、AIとの会話、画像認識、音声翻訳、食事の栄養解析、本の要約を利用するiOSアプリです。[RaybanMeta-OpenAI](https://github.com/2ndarystorage/RaybanMeta-OpenAI)をベースに、[RaybanmetaSummarizeBook](https://github.com/2ndarystorage/RaybanmetaSummarizeBook)の日本語要約・読み上げ機能を統合しています。
 
+<p align="center">
+  <img src="CameraAccess/Assets.xcassets/UrbanGlassesHero.imageset/urban-glasses.png" alt="都会の光を映す黒いスマートグラスをイメージした、アプリで使用する実写調ビジュアル" width="880">
+</p>
 
-## トップ画面のデザイン
+グラスを主役にした写真表現、アイボリーと墨色、フレームの線画と細線アイコンで画面を統一しました。画像素材はAI生成のコンセプトビジュアルで、公式の商品写真ではありません。[デザインと画像素材の詳細](docs/urban-design.md)
 
-2026年10月18日、ホームと接続前のウェルカム画面を、グラスを主役にした実写調のデザインへ変更しました。アイボリーと墨色、フレームの線画、細いシンボル、丸みを抑えたシステムフォントを使っています。Live AI・画像認識・翻訳・LeanEat・本の要約の5機能へ移動できます。写真はimagegenによる生成素材です。
+> **現在の状態（2026年10月18日）：** 署名付きビルド、iPhone 15 Proへのインストール・起動、本の要約の自動テスト7件に成功しています。実際の眼鏡との接続とAIサービスへの通信は未検証です。利用にはMetaの接続設定と、ご自身のAPIキーが必要です。
 
-[ホームの画面プレビュー](screenshots/urban/home-iphone.png) · [ウェルカム画面のプレビュー](screenshots/urban/welcome-iphone.png) · [デザインと画像生成条件](docs/urban-design.md)
+## 画面イメージ
 
-ホームのスクリーンショットはSDKに依存しない画面プレビューで、接続表示は表示確認用の例です。Metaの接続設定が未設定でもウェルカム画面は表示されます。グラスとの接続にはMeta App IDとClient Tokenなどの設定が必要です。
+<table>
+  <tr>
+    <th>ウェルカム</th>
+    <th>ホーム</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshots/urban/welcome-iphone.png" alt="グラスの写真と接続ボタンを配置したウェルカム画面のプレビュー" width="300"></td>
+    <td align="center"><img src="screenshots/urban/home-iphone.png" alt="Live AIの写真カードと各機能の入口を配置したホーム画面のプレビュー" width="300"></td>
+  </tr>
+</table>
 
-## OpenAI APIキーの共通利用
+iPhoneシミュレータ上で、アプリと同じ画面部品を使って表示を確認したプレビューです。ホームの「接続済み」は表示確認用の値で、実際に眼鏡が接続された記録ではありません。下へスクロールすると残りの機能カードと読書の写真カードが表示されます。
 
-**設定 → OpenAI API Key（画像・栄養・翻訳共通）** で登録した1つのキーを、OpenAI選択時のLive AI、クイック画像認識、撮影後の画像認識、LeanEat、リアルタイム翻訳、本の要約で使います。キーはiPhoneのKeychainに保存されます。画像認識とLeanEatは `gpt-4.1-mini`、翻訳は `gpt-realtime-translate` を利用します。各モデルへのアクセス権と利用料金が必要です。Live AIのQwen/Gemini切り替えは残しており、その場合だけ各サービスのキーが別途必要です。
+## できること
 
-翻訳は原文言語を自動判定し、設定で翻訳先を指定します。旧Qwen版の音色選択、画像補助翻訳、原文言語の固定は使えません。音声オフはiPhone側の再生停止です。実際の眼鏡とAPIを使う動作は未検証です。
-
-[日本語](README.md) · [English](README_EN.md) · [简体中文](README_ZH.md)
-
-![TurboMetaのロゴ](rayban.png)
-
-このリポジトリは [Turbo1123/turbometa-rayban-ai](https://github.com/Turbo1123/turbometa-rayban-ai) を基に、Ray-Ban Meta向けアプリのiOS版へ **OpenAI Realtime API、ウェイクワード、Function Calling、AI Router** を追加したものです。Live AIではQwen OmniとGemini Liveも選択できます。
-
-元の `RaybanMetaAIAdd` とは別のプロジェクトです。[Meta Glasses iOS OpenAI](https://github.com/kirill-markin/meta-glasses-ios-openai) を設計の参考にし、**OpenAI Realtimeを初期選択**にしています。Qwen OmniとGemini Liveも設定画面から切り替えられます。参考アプリのWeb検索・長期記憶機能は未実装です。
-
-> iOSアプリはソースコードからXcodeでビルドしてください。Android版も収録していますが、今回のOpenAI Realtime・Function Calling・AI Routerの追加はiOS版のみです。Androidの既存ウェイクワード機能は維持しています。
-
-## まず使うには
-
-1. **Metaの開発者設定を用意：** [Meta Wearables Developer Center](https://wearables.developer.meta.com/)でアプリを登録し、Meta App IDとClient Tokenを取得します。元アプリとは別のBundle IdentifierとURLスキームを使うため、このコピー用の登録が必要です。
-2. **Xcodeで設定：** `CameraAccess.xcodeproj`を開き、SigningのTeamを選びます。`Config/LocalSecrets.example.xcconfig`を`Config/LocalSecrets.xcconfig`にコピーし、`META_APP_ID`と`CLIENT_TOKEN`を入力します。このローカルファイルはGitの追跡対象外です。
-3. **iPhoneで起動：** 眼鏡をMetaアプリとペアリングし、DAT SDKプレビューモードを有効にしてから、Xcodeで実機へインストールします。
-4. **AIのキーを登録：** アプリの設定画面でOpenAI APIキーを登録し、ホームのLive AIから会話を始めます。Qwen・Geminiを使う場合は各サービスのキーも登録し、Live AI Providerで切り替えます。
-
-詳しい設定とトラブル対処は[下の手順](#ios版のセットアップ)を参照してください。APIキーなしでも画面の確認はできますが、AI会話には対応サービスのキーと通信環境が必要です。
-
-## 今回追加した機能
-
-| 機能 | iOSでの動作 |
+| ホームの入口 | 機能 |
 | --- | --- |
-| OpenAI Realtime API | `gpt-realtime` に音声を送信し、返答音声と文字起こしを表示します。発話時に眼鏡のカメラ画像も送信できます。 |
-| ウェイクワード | Live AI画面を開いている間、対応端末では端末内音声認識で英語の「Hey Turbo」を待ち受けます。手動の「Start now」ボタンも利用できます。 |
-| Function Calling | OpenAI Realtimeから `get_current_time`（端末の現在時刻）と `get_camera_frame_status`（カメラ画像の取得状況）を呼び出せます。どちらも読み取り専用です。 |
-| AI Router | 「Auto」を選ぶと、設定済みAPIキーを **OpenAI → Qwen → Gemini** の順に確認し、会話開始時に接続先を決めます。 |
+| **LIVE AI** | グラスのカメラ・マイクを使ってAIと会話。OpenAI Realtime、Qwen Omni、Gemini Live、Autoを選択できます。 |
+| **画像を読み取る** | Quick Visionで見ている場面や文字を解析し、結果を読み上げます。Siriショートカットにも対応しています。 |
+| **ことばをつなぐ** | リアルタイム翻訳。原文言語を自動判定し、設定した翻訳先の音声と字幕を出力します。 |
+| **食事を記録する** | LeanEatの撮影・栄養解析へ移動し、食事の推定栄養情報やスコアを確認します。 |
+| **本の要約を聴く** | 映っているページを日本語で要約し、指定文字数以内の内容を端末の音声合成で読み上げます。 |
 
-**対応範囲：** 上記のOpenAI連携・関数呼び出し・自動選択はiOS版に実装しています。Androidには既存のQwen/Gemini切り替えと「Jarvis」でQuick Visionを起動するPorcupineウェイクワードがあります。Android版の詳細は[こちら](android/README.md)をご覧ください。
+会話履歴・ギャラリー・設定は下部のタブから開きます。栄養情報や要約などのAI出力は、実際の食品・原文と照合してください。
 
-## 主な既存機能
+## 用意するもの
 
-- **Live AI：** 眼鏡のマイク・カメラを使ったリアルタイム会話。Qwen OmniとGemini Liveを選択できます。
-- **Quick Vision：** 撮影画像をAIで解析。iOSではSiriショートカット、Androidでは既存の「Jarvis」ウェイクワードに対応します。
-- **写真・栄養解析：** 撮影、LeanEatによる食事の栄養情報とスコア表示。
-- **リアルタイム翻訳：** OpenAIの翻訳専用モデルで音声と字幕を出力します。
-- **画像解析モデル：** iOSのクイック画像認識、撮影後の画像認識、LeanEatはOpenAIを利用します。
+- iOS 17以降のiPhone。ビルド・インストールにはMacとXcodeが必要です。この版はXcode 26.6で確認しています。
+- Meta Wearables DAT SDKに対応するRay-Ban Metaなどの眼鏡と、ペアリングに使うMeta AIアプリ。
+- [Meta Wearables Developer Center](https://wearables.developer.meta.com/)で用意したアプリ設定（Meta App ID、Client Tokenなど）。
+- 利用するAIサービスのAPIキーとネットワーク接続。
 
-英語版と中国語版のREADMEは元プロジェクト由来の参考資料です。
+このプロジェクトはDAT SDK **0.5.0** を使用します。本の要約の追加元が使用するSDK 1.0.0へは変更せず、ベースアプリの接続・カメラセッションを共用しています。
 
-### 画面例
+## セットアップ
 
-| ホーム | 会話履歴 | カメラ | 設定 |
-| --- | --- | --- | --- |
-| ![ホーム画面](screenshots/首页.jpg) | ![会話履歴](screenshots/对话记录.jpg) | ![カメラ画面](screenshots/camera.jpg) | ![設定画面](screenshots/设置页面.jpg) |
+1. このリポジトリを取得し、`CameraAccess.xcodeproj`をXcodeで開きます。Schemeは **TurboMeta** を選択し、Swift Packageの依存解決を待ちます。
+2. アプリターゲット **CameraAccess → Signing & Capabilities** で、ご自身の開発用Teamを選びます。Bundle Identifierを変更する場合は、Meta側のアプリ登録も合わせてください。
+3. `Config/LocalSecrets.example.xcconfig`を、同じフォルダの`LocalSecrets.xcconfig`へコピーします。`META_APP_ID`と`CLIENT_TOKEN`にご自身の値を設定します。実際の値をREADMEやソースコードへ書き込まないでください。
+4. Meta側で、Bundle Identifierとコールバック用URLスキームを登録・確認します。現在のプロジェクトのURLスキームは **`turbometa-openai://`** です。
+5. Meta AIアプリで眼鏡をペアリングし、Metaの案内に従って開発用の接続設定を行います。
+6. 開発用に設定したiPhoneをXcodeで選び、ビルド・実行します。ウェルカム画面の **Ray-Ban Metaに接続** から登録し、表示される権限要求を確認します。
+7. ホームに進んだら、**設定 → OpenAI API Key（画像・栄養・翻訳共通）** でご自身のキーを保存します。
 
-元プロジェクトの[デモ動画](https://www.bilibili.com/video/BV1aTqSBHEqN)も参照できます。スクリーンショットと動画は元機能の紹介であり、今回追加した4機能の動作確認映像ではありません。
+このプロジェクトはベースアプリのBundle IdentifierとURLスキームを引き継いでいます。同じ識別子でインストールすると既存アプリの更新になります。別アプリとして同時に使う場合は、識別子・URLスキーム・Meta側の登録をそれぞれ揃えて変更してください。
 
-## 動作に必要なもの
+Meta SDKの初期化に失敗してもウェルカム画面は表示されます。接続ボタンで設定確認の案内が出る場合は、手順2〜5を確認してください。**Meta設定が完了するまでは、ホームの各機能を利用できません。**
 
-- Ray-Ban Metaなど、Meta Wearables DAT SDKに対応する眼鏡と、ペアリング済みのスマートフォン。
-- iOS 17以降のiPhoneとXcode。Android側の要件は[Android README](android/README.md)を参照してください。
-- Meta Wearables Developer Centerで作成したアプリ設定と、利用するAIサービスのAPIキー。
-- リアルタイムAI機能を使うためのネットワーク接続。
+## APIキーの設定
 
-## iOS版のセットアップ
+OpenAI用には、設定画面に保存する**1つのキー**を共用します。本の要約用に別のキーを登録する必要はありません。
 
-1. [Meta Wearables Developer Center](https://wearables.developer.meta.com/)でプロジェクトを作成し、iOS用の **Meta App ID** と **Client Token** を取得します。
-2. Xcodeで `CameraAccess.xcodeproj` を開き、署名用のTeamとBundle Identifierを確認します。このコピーには元アプリと同時インストールするため、末尾が `.openai` の別Bundle Identifierと `turbometa-openai://` のURLスキームを設定しています。Meta側にもこの識別子・スキームに対応するアプリ登録が必要です。`Config/LocalSecrets.example.xcconfig`を`Config/LocalSecrets.xcconfig`へコピーして実際の`META_APP_ID`と`CLIENT_TOKEN`を入力します。`CameraAccess/Info.plist`はその値を参照します。秘密情報をGitへコミットしないでください。
-3. Meta View／Meta AIアプリで眼鏡をペアリングし、元プロジェクトの手順に従って **DAT SDKプレビューモード** を有効にします。元READMEでは、アプリ情報画面のバージョン番号を5回タップする手順が案内されています。
-4. iPhoneを接続してXcodeからビルド・起動します。別Bundle Identifierのため、元アプリのKeychainに保存したAPIキーは引き継がれません。アプリの設定画面で利用するAIサービスのAPIキーを再登録します。
-
-日本語のiPhoneではアプリの画面表示が日本語になります。必要に応じて **設定 → アプリの言語 → 日本語** を選んで再起動してください。AIの音声・テキストの言語は **設定 → 出力言語** で別に選択できます。以前保存した会話履歴やカスタム指示は自動翻訳されません。Android版の表示言語は今回の変更対象外です。
-
-### 追加機能の設定
-
-1. **設定 → Live AI Provider** で「OpenAI Realtime」「Alibaba Cloud Qwen Omni」「Google Gemini Live」「AI Router (Auto)」を選べます。新規インストール時の初期選択はOpenAIです。保存済みの選択がある場合はその設定を維持します。
-2. **設定 → OpenAI API Key（画像・栄養・翻訳共通）** からキーを登録します。AutoでQwenを使う場合はAlibabaキー、Geminiを使う場合はGoogleキーも登録してください。
-3. ウェイクワードを使う場合は **「Wake phrase: Hey Turbo」** を有効にし、マイクと音声認識の権限を許可します。眼鏡を接続してLive AI画面を開き、「Hey Turbo」と話すか、画面の「Start now」を押してください。
-
-| 利用する機能 | 必要なキー・設定 |
+| 利用先 | 設定・実装上のモデル |
 | --- | --- |
-| OpenAI Realtime、Function Calling、クイック画像認識、LeanEat、リアルタイム翻訳 | [OpenAIのAPIキー](https://platform.openai.com/api-keys)と利用するモデルへのアクセス権 |
-| Qwen Omni | [Alibaba Cloud Model Studio](https://bailian.console.aliyun.com/) のキー。利用する地域に合わせて設定 |
-| Gemini Live | [Google AI Studio](https://aistudio.google.com/apikey) のキー |
-| Androidの「Jarvis」ウェイクワード | [Picovoice Console](https://console.picovoice.ai/) のAccess Key |
+| Live AIのOpenAIモード | 共通のOpenAIキー。`gpt-realtime`を利用。 |
+| Quick Vision・撮影後の画像認識・LeanEat・本の要約 | 共通のOpenAIキー。`gpt-4.1-mini`を利用。 |
+| リアルタイム翻訳 | 共通のOpenAIキー。`gpt-realtime-translate`を利用。翻訳先は設定から選択。 |
+| Live AIのQwen Omniモード | Alibaba Cloudのキー。利用する地域の設定も確認。 |
+| Live AIのGemini Liveモード | Googleのキー。 |
 
-## 既存機能の使い方
+Live AIの接続先は **設定 → Live AIプロバイダー** で切り替えます。新規インストール時の初期選択はOpenAIです。Autoは会話開始時に、保存済みキーを **OpenAI → Qwen → Gemini** の順で確認して選択します。接続失敗後に別サービスへ自動で切り替わる機能ではありません。
 
-### Quick VisionとSiri
+キーはiPhoneのKeychainに保存します。**APIキーをリポジトリへアップロードしないでください。** `Config/LocalSecrets.xcconfig`とビルド生成物はGitの追跡対象外です。画像・音声を送信する機能では、利用先のAPI料金とモデルへのアクセス権が必要です。
 
-アプリでAPIキーと眼鏡の接続を設定した後、iPhoneの「ショートカット」アプリでTurboMetaの「クイック画像認識」アクションを追加します。ショートカットに好きな名前を付け、Siriでその名前を呼ぶと、撮影・画像解析・音声読み上げを開始できます。必要に応じてiPhoneのアクションボタンやロック画面ウィジェットにも割り当てられます。初回はTurboMetaを一度開き、機能を初期化してください。
+## 本の要約の使い方
 
-### 本の要約
+1. OpenAIキーと眼鏡の接続を設定した後、ホームの **本の要約を聴く** を開きます。下部の「読む時間を、聴く時間に。」の写真カードからも開けます。
+2. **映像を開始** を押し、本のページを明るい場所で正面に向けます。プレビューで文字を確認してください。
+3. 要約の上限を **50〜1000文字** で指定します。初期値は200文字、50文字刻みです。
+4. **このページを要約** を押すと、その時点の映像フレームをOpenAIへ送信します。要約文と対象画像を表示し、日本語で自動読み上げします。
+5. **もう一度聴く**、**読み上げ停止** を使えます。解析中は **キャンセル** できます。
 
-[RaybanmetaSummarizeBook](https://github.com/2ndarystorage/RaybanmetaSummarizeBook)（参照コミット `8c6a795`）のページ要約・読み上げ機能をiOSへ統合しました。
-ベースはRaybanMeta-OpenAIの `488d05d` です。カメラと登録はベースのDAT SDK 0.5.0の共通セッションを使い、追加元のSDK 1.0.0用セッションは持ち込みません。
+文字が小さい場合は、設定の **映像品質 → 高画質** に変更してアプリを再起動してください。
 
-1. 既存の設定画面でOpenAI APIキーを保存し、眼鏡を接続します。
-2. ホームの **本の要約** を開き、**映像を開始** を押します。
-3. 明るい場所で本のページを正面に向け、プレビューの文字を確認します。小さい場合は既存の設定で映像品質を「高」に変更し、アプリを再起動してください。
-4. 要約の上限を **50〜1000文字**（初期値200文字、50文字刻み）で指定し、**このページを要約** を押します。
-5. 日本語要約と対象画像が表示され、要約を自動で読み上げます。**もう一度聴く**、**読み上げ停止**、処理中の **キャンセル** が使えます。
+- 読み取る範囲はボタンを押した時点の1画像です。本全体の連続取り込みではありません。文字を十分に読めない場合は再撮影を案内します。
+- 文字数は句読点を含むSwiftの`String.count`で数えます。上限を超えると1回だけ再要約し、それでも長ければ端末側で文末または上限で切ります。通常は1回、短縮時は最大2回のAPI呼び出しです。
+- 音声は端末で生成し、iPhoneの現在の音声出力先へ再生します。メガネから聴く場合は、Bluetoothの音声出力先を確認してください。
+- 映像停止、眼鏡切断、画面を閉じる操作、バックグラウンド移行で、解析と読み上げを停止します。キャンセル後の古い応答から自動再生を再開しません。
+- 本の要約機能は、対象画像・本文・要約をファイル保存せず、画面のメモリ内に保持します。
 
-`gpt-4.1-mini` にボタンを押した時点のプレビューフレームを送り、写っている本文だけを要約します。本全体の連続取り込みではありません。
-文字数は句読点を含むSwiftの`String.count`で数えます。上限超過時は1回だけ短縮を要求し、それでも長い場合は端末側で文末または上限で切ります。
-文字を十分に読めない場合は再撮影を案内し、APIキー未設定・認証失敗・利用上限なども画面に表示します。
+## Live AI・Siriの補助機能
 
-音声は端末の日本語音声合成を使います。メガネから聴く場合はiPhoneの音声出力先をメガネにしてください。
-映像停止、眼鏡の切断、画面を閉じる操作、バックグラウンド移行で処理と読み上げを停止します。戻ったら映像を再開してください。
-キャンセル後に古い応答が届いても、要約の更新や自動読み上げを再開しません。
-画像・本文・要約はアプリからファイル保存せず、画面のメモリ内に保持します。API利用料金は通常1回、短縮時は最大2回分です。
-Android版への本の要約機能の追加は今回の対象外です。
+**Hey Turbo：** 設定の **Wake phrase: Hey Turbo** を有効にすると、Live AI画面が前面にある間、対応端末では端末内の英語音声認識で待ち受けます。`en-US`の端末内認識が使えない場合は **Start now** を使用してください。ロック中やシステム全体で使うウェイクワードではありません。
 
-### その他の機能
+**Function Calling：** OpenAI Realtimeから、端末の現在時刻を取得する`get_current_time`と、カメラ画像の取得状況を確認する`get_camera_frame_status`を利用できます。どちらも読み取り専用です。
 
-Live AIはホーム画面から開き、接続後に話しかけます。クイック画像認識は撮影した場面を短く説明し、LeanEatは撮影した食事の栄養情報を推定します。栄養情報などのAI推定結果は参考情報として扱ってください。
+**Siriショートカット：** インストール後にアプリを一度開いて初期化し、iPhoneの「ショートカット」アプリで **RaybanMeta OpenAI** の **クイック画像認識** などのアクションを追加します。アプリの表示名は現在「RaybanMeta OpenAI」です。必要に応じてショートカットをアクションボタンなどへ割り当ててください。本の要約専用のSiriアクションは未実装です。
 
 ## 困ったときは
 
-- **眼鏡が接続されない：** Meta View／Meta AIアプリでのペアリング、Bluetooth、DAT SDKプレビューモードを確認し、アプリと眼鏡を再起動します。
-- **AIが返答しない：** 選択したサービスのAPIキー、地域、ネットワーク接続、利用枠を確認します。Autoは接続失敗時に別サービスへ自動で切り替わりません。
-- **SiriにTurboMetaの操作が出ない：** インストール後にアプリを一度開き、必要ならiPhoneを再起動します。
-- **音声が聞こえない：** iPhoneと眼鏡のBluetooth音声出力、音量、ネットワークを確認します。
-- **Xcodeで起動できない：** Signing & CapabilitiesのTeam、Bundle Identifier、実機の開発者設定を確認します。
+| 状況 | 確認すること |
+| --- | --- |
+| 接続設定の案内が出る | ローカルのMeta App ID・Client Token、Team、Bundle Identifier、URLスキームを確認し、再ビルド。 |
+| 眼鏡が接続されない | Meta AIアプリのペアリング、開発用設定、Bluetooth、眼鏡の状態を確認。 |
+| AIが返答しない | 機能に対応するキー、選択したプロバイダー、ネットワーク、利用枠・モデルへのアクセス権を確認。 |
+| 本の文字を読めない | 明るさ、距離、反射、手ぶれ、映像品質を調整して再試行。 |
+| 音声が聞こえない | iPhoneの音量と現在の音声出力先を確認。 |
+| バックグラウンドから戻ると映像が止まっている | 本の要約画面で映像を再開。 |
+| Xcodeでインストールできない | SigningのTeam、iPhoneの開発用設定、接続状態を確認。 |
 
-## 利用上の制約
+## 検証状況
 
-- iOSの「Hey Turbo」は、Live AI画面を前面に表示している間だけ待ち受けます。`en-US` の端末内音声認識が利用できない場合は「Start now」を使ってください。バックグラウンドやシステム全体のウェイクワードではありません。
-- AI Routerは会話開始時に設定済みキーの優先順位で選びます。会話中のモデル切り替えや、接続エラー後の自動フェイルオーバーは行いません。
-- Function Callingで公開しているのは現在時刻とカメラ画像の取得状況だけです。外部サービスの操作や任意の端末操作はできません。
-- OpenAIへ送った音声・画像にはAPI利用料金が発生する場合があります。実際の眼鏡とAPIを使った動作確認は利用者の環境で必要です。
-- Meta DAT SDKの制約により、眼鏡カメラをバックグラウンドから利用できない機能があります。
-- 配布用アプリでは共有APIキーを埋め込まず、信頼できるバックエンドで短命のクライアント用認証情報を発行してください。
+2026年10月18日時点の、このリポジトリの統合版に対する結果です。
 
-## ビルド・検証状況
+| 確認項目 | 結果 |
+| --- | --- |
+| Xcode 26.6でのiOS向け署名付きDebugビルド | 成功 |
+| iPhone 15 Proへのインストール・起動、起動後のプロセス確認 | 成功 |
+| ホームとウェルカム画面の表示 | iPhoneシミュレータ上の画面プレビューで確認 |
+| 本の要約の自動テスト | シミュレータで7件成功。文字数制限、再要約、読み取り失敗、API認証・利用上限、キー未設定、キャンセル後の遅延応答を検証 |
+| 実際の眼鏡との接続、カメラ・マイク | 未検証 |
+| OpenAI・Qwen・Geminiへの実際の通信 | 未検証。要約テストでは模擬通信を使用 |
+| 日本語の読み上げと眼鏡へのBluetooth音声出力 | 実環境では未検証 |
 
-2026年10月17日、変更前の版はXcode 26.6でiPhone 15 Pro向けの署名付きDebugビルド、実機へのインストール、模擬デバイスを使うカメラ統合テスト2件に成功しました。2026年10月18日、今回の変更後のiOS向けDebugビルドも成功しました。変更後の実機インストールとAI通信テストは未実施です。
+確認時のビルドにはMeta App IDとClient Tokenを設定していません。インストールと起動の成功は、眼鏡を使う各機能の動作保証ではありません。
 
-このビルドでは `META_APP_ID` と `CLIENT_TOKEN` が未設定です。そのため、Ray-Ban Metaとの接続、カメラ・マイク、OpenAI/Qwen/Geminiとの会話は未検証です。これらはMeta側のアプリ登録・眼鏡のペアリング・各APIキーを設定したうえで、実機で別途確認してください。**iPhoneへのインストール成功は眼鏡上での動作確認を意味しません。**
+## 対応範囲・データの扱い
 
-本の要約の統合では、Xcode 26.6で署名なしのiOS実機向けDebugビルドに成功しました。文字数制限、再要約、読み取り失敗、認証・利用上限、キー未設定、キャンセル後の遅延応答を確認する自動テスト7件を追加し、テストコードのコンパイルも成功しています。2026年10月18日のデザイン更新で、Meta設定がない場合にSDKの未初期化シングルトンへアクセスせずウェルカム画面を表示するよう修正し、iPhoneシミュレータで7件すべて成功しました。眼鏡との接続、実際の書籍画像を使うOpenAI通信、日本語音声のBluetooth出力は未検証です。
+- 今回の本の要約・ホームデザイン・OpenAI連携の変更は**iOS版**が対象です。Androidの既存コードも収録していますが、同等の機能追加・検証はしていません。[Android版の参考資料](android/README.md)
+- iOSではOpenClaw、RTMP配信、単独ライブ配信は提供していません。
+- 本の要約は日本語固定です。他のAI機能の出力言語は設定を確認してください。今回追加したホームとウェルカムのコピーも日本語を中心としています。
+- 解析する画像・音声は各機能のAPIサービスへ送信されます。保存やデータの扱いは利用するサービスの条件も確認してください。上記の「ファイル保存しない」という説明は本の要約機能についてのものです。
+- 一般配布する場合は、共有APIキーをアプリへ埋め込まず、バックエンド経由の認証・課金管理を検討してください。
 
-## ライセンスと謝辞
+## ベース・参考資料
 
-ライセンスは[LICENSE](LICENSE)を参照してください。元プロジェクトの作者 [Turbo1123](https://github.com/Turbo1123) とMeta Wearables DAT SDKの開発元に感謝します。
+- ベースアプリ：[RaybanMeta-OpenAI](https://github.com/2ndarystorage/RaybanMeta-OpenAI)（統合時 `488d05d`）
+- 本の要約機能：[RaybanmetaSummarizeBook](https://github.com/2ndarystorage/RaybanmetaSummarizeBook)（参照時 `8c6a795`）
+- 元プロジェクト：[Turbo1123/turbometa-rayban-ai](https://github.com/Turbo1123/turbometa-rayban-ai)
+- SDK：[Meta Wearables DAT iOS](https://github.com/facebook/meta-wearables-dat-ios)
+- デザイン・画像生成条件：[urban-design.md](docs/urban-design.md)
+- 元プロジェクト由来の資料：[English](README_EN.md) · [简体中文](README_ZH.md)。現在のiOS版の説明・画面と一致しない箇所があります。最新版の説明はこの日本語READMEを参照してください。
+
+旧デザインの画像は元資料との参照を保つため残していますが、このREADMEでは現在の画面プレビューを使用しています。
+
+## ライセンス
+
+元プロジェクトのMITライセンスは[LICENSE](LICENSE)を参照してください。Meta SDKと由来するコードにはMetaの利用条件も適用されます。元プロジェクトの作者と、統合元・SDKの開発者に感謝します。
