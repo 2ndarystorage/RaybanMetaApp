@@ -3,6 +3,35 @@ import SwiftUI
 /// Presentation stays independent of the glasses SDK so the layout can be previewed offline.
 enum UrbanHomeAction {
     case liveAI, quickVision, translation, leanEat, book
+
+    var imageAsset: String {
+        switch self {
+        case .liveAI: return "UseCaseConversation"
+        case .quickVision: return "UseCaseVision"
+        case .translation: return "UseCaseTranslation"
+        case .leanEat: return "UseCaseNutrition"
+        case .book: return "UseCaseBook"
+        }
+    }
+}
+
+/// Supplementary imagery: the enclosing control supplies its readable and spoken label.
+struct HomeUseCaseThumbnail: View {
+    let action: UrbanHomeAction
+    var size: CGFloat = 80
+
+    var body: some View {
+        Image(action.imageAsset)
+            .resizable()
+            .scaledToFill()
+            .frame(width: size, height: size)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(Color.primary.opacity(0.2), lineWidth: 0.75)
+            }
+            .accessibilityHidden(true)
+    }
 }
 
 private enum UrbanPalette {
@@ -59,10 +88,10 @@ struct UrbanHomeDashboard: View {
                             .foregroundStyle(UrbanPalette.muted)
                     }
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: typeSize.isAccessibilitySize ? 1 : 2), spacing: 12) {
-                        tool("目の前の景色を読み取る", detail: "見ているものを、知る。", category: "VISION", number: "02", symbol: "viewfinder", action: .quickVision)
-                        tool("外国語をリアルタイムで翻訳する", detail: "会話を、その場で翻訳。", category: "TRANSLATE", number: "03", symbol: "character.bubble", action: .translation)
-                        tool("食事を記録する", detail: "ひと皿から、健やかに。", category: "LEAN EAT", number: "04", symbol: "leaf", action: .leanEat)
-                        tool("本の要約を聴く", detail: "一ページを、短い音声に。", category: "BOOK READER", number: "05", symbol: "book", action: .book)
+                        tool("目の前の景色を読み取る", detail: "見ているものを、知る。", category: "VISION", number: "02", action: .quickVision)
+                        tool("外国語をリアルタイムで翻訳する", detail: "会話を、その場で翻訳。", category: "TRANSLATE", number: "03", action: .translation)
+                        tool("食事を記録する", detail: "ひと皿から、健やかに。", category: "LEAN EAT", number: "04", action: .leanEat)
+                        tool("本の要約を聴く", detail: "一ページを、短い音声に。", category: "BOOK READER", number: "05", action: .book)
                     }
                 }
                 readingCard
@@ -91,7 +120,7 @@ struct UrbanHomeDashboard: View {
         Button { onSelect(.liveAI) } label: {
             ZStack(alignment: .bottomLeading) {
                 GeometryReader { geometry in
-                    Image("UrbanGlassesHero")
+                    Image(UrbanHomeAction.liveAI.imageAsset)
                         .resizable().scaledToFill()
                         .frame(width: geometry.size.width, height: geometry.size.height)
                         .clipped()
@@ -99,7 +128,7 @@ struct UrbanHomeDashboard: View {
                 LinearGradient(stops: [.init(color: .clear, location: 0.32), .init(color: .black.opacity(0.72), location: 1)], startPoint: .top, endPoint: .bottom)
                 VStack(alignment: .leading, spacing: 0) {
                     HStack {
-                        Label("LIVE AI", systemImage: "waveform")
+                        Text("LIVE AI")
                             .font(.system(size: 10, weight: .medium))
                             .tracking(1.2)
                         Spacer()
@@ -137,13 +166,11 @@ struct UrbanHomeDashboard: View {
         .accessibilityLabel("Live AI。グラスのカメラとマイクでAIと会話する")
     }
 
-    private func tool(_ title: String, detail: String, category: String, number: String, symbol: String, action: UrbanHomeAction) -> some View {
+    private func tool(_ title: String, detail: String, category: String, number: String, action: UrbanHomeAction) -> some View {
         Button { onSelect(action) } label: {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .top) {
-                    Image(systemName: symbol)
-                        .font(.system(size: 25, weight: .ultraLight))
-                        .frame(height: 29)
+                    HomeUseCaseThumbnail(action: action)
                     Spacer()
                     Text(number)
                         .font(.system(size: 9, weight: .regular, design: .monospaced))
@@ -177,6 +204,7 @@ struct UrbanHomeDashboard: View {
         }
         .buttonStyle(UrbanPressStyle())
         .accessibilityElement(children: .ignore)
+        .accessibilityAddTraits(.isButton)
         .accessibilityLabel("\(title)。\(detail)")
     }
 
@@ -184,7 +212,7 @@ struct UrbanHomeDashboard: View {
         Button { onSelect(.book) } label: {
             ZStack(alignment: .bottomLeading) {
                 GeometryReader { geometry in
-                    Image("UrbanReading")
+                    Image(UrbanHomeAction.book.imageAsset)
                         .resizable().scaledToFill()
                         .frame(width: geometry.size.width, height: geometry.size.height)
                         .clipped()
@@ -306,6 +334,15 @@ struct UrbanWelcomeContent: View {
         .sheet(isPresented: $showDisplaySettings) { HomeDisplaySettingsSheet() }
     }
 
+    private func welcomeFeature(_ title: String, action: UrbanHomeAction) -> some View {
+        VStack(spacing: 8) {
+            HomeUseCaseThumbnail(action: action, size: 56)
+            Text(title).fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
+    }
+
     private var standardBody: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 28) {
@@ -348,10 +385,10 @@ struct UrbanWelcomeContent: View {
                         .lineSpacing(5)
                         .foregroundStyle(UrbanPalette.muted)
                 }
-                HStack(spacing: 20) {
-                    Label("AI会話", systemImage: "waveform")
-                    Label("翻訳", systemImage: "character.bubble")
-                    Label("本の要約", systemImage: "book")
+                HStack(alignment: .top, spacing: 16) {
+                    welcomeFeature("AI会話", action: .liveAI)
+                    welcomeFeature("翻訳", action: .translation)
+                    welcomeFeature("本の要約", action: .book)
                 }
                 .font(.system(.caption))
                 .foregroundStyle(UrbanPalette.muted)

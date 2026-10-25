@@ -22,16 +22,16 @@ struct AccessibleHomeDashboard: View {
                     .font(.body.weight(.semibold))
                     .accessibilityIdentifier("home.glasses.status")
 
-                action(title: "声で質問したい", detail: "AIとの会話を開きます。声で質問し、返答を音声で聴けます。", symbol: "mic.fill", destination: .liveAI, prominent: true)
+                action(title: "声で質問したい", detail: "AIとの会話を開きます。声で質問し、返答を音声で聴けます。", destination: .liveAI, prominent: true)
 
                 Text("いま、確かめたいこと")
                     .font(.title2.weight(.bold))
                     .accessibilityAddTraits(.isHeader)
                 VStack(spacing: 16) {
-                    action(title: "目の前に見えるものを知りたい", detail: "設定した画像認識モードで、グラスで撮影した画像の解析結果を聴けます。", symbol: "text.viewfinder", destination: .quickVision)
-                    action(title: "本を要約して聴きたい", detail: "本のページを日本語で要約して聴けます。要約の長さを選べます。", symbol: "book.fill", destination: .book)
-                    action(title: "会話を訳してほしい", detail: "話していることばを、設定した言語に翻訳します。", symbol: "character.bubble.fill", destination: .translation)
-                    action(title: "食事の内容を知りたい", detail: "食事の写真から、栄養の目安を確認します。", symbol: "fork.knife", destination: .leanEat)
+                    action(title: "目の前に見えるものを知りたい", detail: "設定した画像認識モードで、グラスで撮影した画像の解析結果を聴けます。", destination: .quickVision)
+                    action(title: "本を要約して聴きたい", detail: "本のページを日本語で要約して聴けます。要約の長さを選べます。", destination: .book)
+                    action(title: "会話を訳してほしい", detail: "話していることばを、設定した言語に翻訳します。", destination: .translation)
+                    action(title: "食事の内容を知りたい", detail: "食事の写真から、栄養の目安を確認します。", destination: .leanEat)
                 }
 
                 Text("画像や音声はAIサービスへ送信されます。AIの説明には誤りや見落としがあります。移動や道路の横断など、安全に関わる判断には使えません。")
@@ -50,12 +50,10 @@ struct AccessibleHomeDashboard: View {
         .accessibilityIdentifier("home.accessible")
     }
 
-    private func action(title: String, detail: String, symbol: String, destination: UrbanHomeAction, prominent: Bool = false) -> some View {
+    private func action(title: String, detail: String, destination: UrbanHomeAction, prominent: Bool = false) -> some View {
         Button { onSelect(destination) } label: {
             VStack(alignment: .leading, spacing: 12) {
-                Image(systemName: symbol)
-                    .font(.title2.weight(.semibold))
-                    .accessibilityHidden(true)
+                HomeUseCaseThumbnail(action: destination, size: 96)
                 Text(title)
                     .font(.title2.weight(.bold))
                     .fixedSize(horizontal: false, vertical: true)
@@ -87,6 +85,14 @@ struct AccessibleWelcomeContent: View {
     let isConnecting: Bool
     let onConnect: () -> Void
     let onDisplaySettings: () -> Void
+
+    private func welcomeFeature(_ title: String, action: UrbanHomeAction) -> some View {
+        HStack(alignment: .center, spacing: 16) {
+            HomeUseCaseThumbnail(action: action, size: 64)
+            Text(title).fixedSize(horizontal: false, vertical: true)
+        }
+        .accessibilityElement(children: .combine)
+    }
 
     var body: some View {
         ScrollView {
@@ -125,9 +131,9 @@ struct AccessibleWelcomeContent: View {
                     .font(.title2.weight(.bold))
                     .accessibilityAddTraits(.isHeader)
                 VStack(alignment: .leading, spacing: 20) {
-                    Label("声で質問し、AIの返答を聴く", systemImage: "mic.fill")
-                    Label("画像に写った文字やものを確かめる", systemImage: "text.viewfinder")
-                    Label("本のページを短い要約で聴く", systemImage: "book.fill")
+                    welcomeFeature("声で質問し、AIの返答を聴く", action: .liveAI)
+                    welcomeFeature("画像に写った文字やものを確かめる", action: .quickVision)
+                    welcomeFeature("本のページを短い要約で聴く", action: .book)
                 }
                 .font(.body)
                 Text("この表示は、全盲・ロービジョンなど見え方の違いにかかわらず選べます。文字の大きさはiPhoneの設定に合わせて変わります。VoiceOverを使う場合も、同じボタンから操作できます。")
