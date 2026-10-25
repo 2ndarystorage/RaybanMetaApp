@@ -17,8 +17,23 @@ struct UrbanHomeDashboard: View {
     let isConnected: Bool
     let onSelect: (UrbanHomeAction) -> Void
     @Environment(\.dynamicTypeSize) private var typeSize
+    @AppStorage(HomeAccessibilitySettings.storageKey) private var accessibilityMode = false
+    @State private var showDisplaySettings = false
 
     var body: some View {
+        Group {
+            if accessibilityMode {
+                AccessibleHomeDashboard(isConnected: isConnected, onSelect: onSelect) {
+                    showDisplaySettings = true
+                }
+            } else {
+                standardBody
+            }
+        }
+        .sheet(isPresented: $showDisplaySettings) { HomeDisplaySettingsSheet() }
+    }
+
+    private var standardBody: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 26) {
                 UrbanBrandHeader(isConnected: isConnected)
@@ -272,11 +287,35 @@ private struct UrbanPressStyle: ButtonStyle {
 struct UrbanWelcomeContent: View {
     let isConnecting: Bool
     let onConnect: () -> Void
+    @AppStorage(HomeAccessibilitySettings.storageKey) private var accessibilityMode = false
+    @State private var showDisplaySettings = false
 
     var body: some View {
+        Group {
+            if accessibilityMode {
+                AccessibleWelcomeContent(isConnecting: isConnecting, onConnect: onConnect) {
+                    showDisplaySettings = true
+                }
+            } else {
+                standardBody
+            }
+        }
+        .preferredColorScheme(accessibilityMode ? nil : .light)
+        .sheet(isPresented: $showDisplaySettings) { HomeDisplaySettingsSheet() }
+    }
+
+    private var standardBody: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 28) {
                 UrbanBrandHeader(isConnected: nil)
+                Button {
+                    showDisplaySettings = true
+                } label: {
+                    Label("表示の設定", systemImage: "textformat.size")
+                        .font(.body.weight(.semibold))
+                        .frame(minHeight: 48)
+                }
+                .accessibilityIdentifier("welcome.display.settings")
                 ZStack(alignment: .bottomLeading) {
                     GeometryReader { geometry in
                         Image("UrbanGlassesHero")

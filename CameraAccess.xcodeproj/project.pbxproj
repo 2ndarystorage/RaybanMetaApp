@@ -86,6 +86,8 @@
 		B00C10000000000000000002 /* BookReaderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00C00000000000000000002 /* BookReaderModel.swift */; };
 		B00C10000000000000000003 /* BookReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00C00000000000000000003 /* BookReaderView.swift */; };
 		A18A90000000000000000002 /* UrbanHomeDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18A90000000000000000001 /* UrbanHomeDashboard.swift */; };
+		A11C10000000000000000001 /* HomeAccessibilitySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11C00000000000000000001 /* HomeAccessibilitySettings.swift */; };
+		A11C10000000000000000002 /* AccessibleHomeDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11C00000000000000000002 /* AccessibleHomeDashboard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -193,6 +195,8 @@
 		B00C00000000000000000002 /* BookReaderModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookReaderModel.swift; sourceTree = "<group>"; };
 		B00C00000000000000000003 /* BookReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookReaderView.swift; sourceTree = "<group>"; };
 		A18A90000000000000000001 /* UrbanHomeDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UrbanHomeDashboard.swift; sourceTree = "<group>"; };
+		A11C00000000000000000001 /* HomeAccessibilitySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeAccessibilitySettings.swift; sourceTree = "<group>"; };
+		A11C00000000000000000002 /* AccessibleHomeDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibleHomeDashboard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -340,6 +344,8 @@
 		4BA57ABF2EF8227E002EC214 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				A11C00000000000000000002 /* AccessibleHomeDashboard.swift */,
+				A11C00000000000000000001 /* HomeAccessibilitySettings.swift */,
 				A18A90000000000000000001 /* UrbanHomeDashboard.swift */,
 				B00C00000000000000000003 /* BookReaderView.swift */,
 				4BB5DFF22F06C07A00AF7BD0 /* LiveAISettingsView.swift */,
@@ -546,6 +552,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A11C10000000000000000002 /* AccessibleHomeDashboard.swift in Sources */,
+				A11C10000000000000000001 /* HomeAccessibilitySettings.swift in Sources */,
 				A18A90000000000000000002 /* UrbanHomeDashboard.swift in Sources */,
 				B00C10000000000000000003 /* BookReaderView.swift in Sources */,
 				B00C10000000000000000002 /* BookReaderModel.swift in Sources */,

@@ -11,6 +11,8 @@ struct TurboMetaHomeView: View {
     @StateObject private var quickVisionManager = QuickVisionManager.shared
     @StateObject private var liveAIManager = LiveAIManager.shared
 
+    @AppStorage(HomeAccessibilitySettings.storageKey) private var accessibilityMode = false
+
     @State private var showLiveAI = false
     @State private var showLeanEat = false
     @State private var showQuickVision = false
@@ -45,7 +47,7 @@ struct TurboMetaHomeView: View {
                 LiveTranslateView(streamViewModel: streamViewModel)
             }
         }
-        .preferredColorScheme(.light)
+        .preferredColorScheme(accessibilityMode ? nil : .light)
         .onAppear {
             // 确保 QuickVisionManager 有 streamViewModel 引用
             quickVisionManager.setStreamViewModel(streamViewModel)

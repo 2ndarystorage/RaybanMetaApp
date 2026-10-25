@@ -42,6 +42,14 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             List {
+                Section {
+                    HomeAccessibilityToggle()
+                } header: {
+                    Text("ホームの表示")
+                } footer: {
+                    Text("知りたいことから選べる文言、大きなボタン、はっきりした配色に切り替えます。VoiceOverなど、iPhoneの読み上げ設定は変更しません。")
+                }
+
                 // 设备管理
                 Section {
                     // 连接状态

@@ -9,6 +9,8 @@ struct MainTabView: View {
     @ObservedObject var streamViewModel: StreamSessionViewModel
     @ObservedObject var wearablesViewModel: WearablesViewModel
 
+    @AppStorage(HomeAccessibilitySettings.storageKey) private var accessibilityMode = false
+
     @State private var selectedTab = 0
 
     var body: some View {
@@ -42,7 +44,7 @@ struct MainTabView: View {
                 .tag(3)
         }
         .tint(Color.primary)
-        .toolbarBackground(Color(red: 0.957, green: 0.953, blue: 0.933), for: .tabBar)
+        .toolbarBackground(accessibilityMode ? Color(uiColor: .systemBackground) : Color(red: 0.957, green: 0.953, blue: 0.933), for: .tabBar)
         .toolbarBackground(.visible, for: .tabBar)
     }
 }

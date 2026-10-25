@@ -41,7 +41,6 @@ struct TurboMetaApp: App {
         ConfiguredWearablesRoot(wearables: wearables)
       } else {
         UrbanWelcomeContent(isConnecting: false) { showSetupNotice = true }
-          .preferredColorScheme(.light)
           .alert("グラスの接続設定が必要です", isPresented: $showSetupNotice) {
             Button("OK", role: .cancel) {}
           } message: {

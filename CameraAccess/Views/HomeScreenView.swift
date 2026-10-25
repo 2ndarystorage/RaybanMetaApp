@@ -22,6 +22,5 @@ struct HomeScreenView: View {
     UrbanWelcomeContent(isConnecting: viewModel.registrationState == .registering) {
       viewModel.connectGlasses()
     }
-    .preferredColorScheme(.light)
   }
 }
