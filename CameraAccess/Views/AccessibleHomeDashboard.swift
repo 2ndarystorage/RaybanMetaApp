@@ -14,6 +14,7 @@ struct AccessibleHomeDashboard: View {
                     .font(.largeTitle.weight(.bold))
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityAddTraits(.isHeader)
+                AccessibleHomeImage()
                 Text("声でたずねる。文字や本を音声で確かめる。自分に合う方法を選べます。")
                     .font(.body)
                     .fixedSize(horizontal: false, vertical: true)
@@ -27,13 +28,12 @@ struct AccessibleHomeDashboard: View {
                     .font(.title2.weight(.bold))
                     .accessibilityAddTraits(.isHeader)
                 VStack(spacing: 16) {
-                    action(title: "画像の説明を聴きたい", detail: "設定した画像認識モードで、グラスで撮影した画像の解析結果を聴けます。", symbol: "text.viewfinder", destination: .quickVision)
-                    action(title: "本を短く聴きたい", detail: "本のページを日本語で要約して聴けます。要約の長さを選べます。", symbol: "book.fill", destination: .book)
+                    action(title: "目の前に見えるものを知りたい", detail: "設定した画像認識モードで、グラスで撮影した画像の解析結果を聴けます。", symbol: "text.viewfinder", destination: .quickVision)
+                    action(title: "本を要約して聴きたい", detail: "本のページを日本語で要約して聴けます。要約の長さを選べます。", symbol: "book.fill", destination: .book)
                     action(title: "会話を訳してほしい", detail: "話していることばを、設定した言語に翻訳します。", symbol: "character.bubble.fill", destination: .translation)
                     action(title: "食事の内容を知りたい", detail: "食事の写真から、栄養の目安を確認します。", symbol: "fork.knife", destination: .leanEat)
                 }
 
-                AccessibleHomeImage()
                 Text("画像や音声はAIサービスへ送信されます。AIの説明には誤りや見落としがあります。移動や道路の横断など、安全に関わる判断には使えません。")
                     .font(.body)
                     .fixedSize(horizontal: false, vertical: true)
@@ -96,6 +96,7 @@ struct AccessibleWelcomeContent: View {
                     .font(.largeTitle.weight(.bold))
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityAddTraits(.isHeader)
+                AccessibleHomeImage()
                 Text("グラスを接続すると、声で質問したり、文字や本の内容を音声で確かめたりできます。まずは接続から始めます。")
                     .font(.body)
                     .fixedSize(horizontal: false, vertical: true)
@@ -129,7 +130,6 @@ struct AccessibleWelcomeContent: View {
                     Label("本のページを短い要約で聴く", systemImage: "book.fill")
                 }
                 .font(.body)
-                AccessibleHomeImage()
                 Text("この表示は、全盲・ロービジョンなど見え方の違いにかかわらず選べます。文字の大きさはiPhoneの設定に合わせて変わります。VoiceOverを使う場合も、同じボタンから操作できます。")
                     .font(.body)
                     .fixedSize(horizontal: false, vertical: true)

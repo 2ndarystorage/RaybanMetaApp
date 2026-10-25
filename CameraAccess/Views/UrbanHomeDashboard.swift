@@ -59,8 +59,8 @@ struct UrbanHomeDashboard: View {
                             .foregroundStyle(UrbanPalette.muted)
                     }
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: typeSize.isAccessibilitySize ? 1 : 2), spacing: 12) {
-                        tool("画像を読み取る", detail: "見ているものを、知る。", category: "VISION", number: "02", symbol: "viewfinder", action: .quickVision)
-                        tool("ことばをつなぐ", detail: "会話を、その場で翻訳。", category: "TRANSLATE", number: "03", symbol: "character.bubble", action: .translation)
+                        tool("目の前の景色を読み取る", detail: "見ているものを、知る。", category: "VISION", number: "02", symbol: "viewfinder", action: .quickVision)
+                        tool("外国語をリアルタイムで翻訳する", detail: "会話を、その場で翻訳。", category: "TRANSLATE", number: "03", symbol: "character.bubble", action: .translation)
                         tool("食事を記録する", detail: "ひと皿から、健やかに。", category: "LEAN EAT", number: "04", symbol: "leaf", action: .leanEat)
                         tool("本の要約を聴く", detail: "一ページを、短い音声に。", category: "BOOK READER", number: "05", symbol: "book", action: .book)
                     }
@@ -157,6 +157,8 @@ struct UrbanHomeDashboard: View {
                     .padding(.bottom, 6)
                 Text(title)
                     .font(.system(.subheadline, weight: .medium))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .multilineTextAlignment(.leading)
                     .tracking(-0.5)
                     .padding(.bottom, 5)
                 Text(detail)
