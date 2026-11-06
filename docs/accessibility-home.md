@@ -4,7 +4,7 @@
 
 ## 設定と動作
 
-設定の「ホームの表示」に「視覚障害者向け」スイッチを追加しました。初期状態はオフです。オンにするとホームとウェルカムの文言、配置、配色、画像が切り替わり、再起動後も保持されます。オフにすると通常のデザインへ戻ります。グラスの接続前やMeta設定のない場合も、ウェルカムの「表示の設定」から変更できます。
+設定の「ホームの表示」に「視覚障害者向け」スイッチを追加しました。初期状態はオフです。オンにするとホームとウェルカムの文言、配置、配色、画像が切り替わり、再起動後も保持されます。オフにすると通常のデザインへ戻ります。グラスの接続前やMeta設定のない場合も、通常のウェルカムでは「表示の設定」、視覚障害者向けのウェルカムでは画面下部の「設定」から変更できます。ホームでは下部タブの「設定」を使います。
 
 表示の設定だけを切り替えます。APIキー・接続先・画像認識モード・出力言語は変更しません。VoiceOverを自動的にオンにはしません。設定値は端末内に保存し、このスイッチの状態をAIサービスへ送信する処理はありません。
 
@@ -50,7 +50,7 @@ Use case: photorealistic-natural. Asset type: wide landscape 3:2 hero image for 
 スクリーンショット：
 
 - `screenshots/accessibility/settings-iphone.png`（実アプリの表示設定）
-- `screenshots/accessibility/welcome-iphone.png`（実アプリの接続前画面）
+- `screenshots/accessibility/welcome-iphone.png`（接続前画面の旧プレビュー）
 - `screenshots/accessibility/home-iphone.png`（ホームの画面プレビュー）
 - `screenshots/accessibility/actions-iphone.png`（更新した機能の文言）
 - `screenshots/accessibility/large-text-dark-iphone.png`（大きな文字・ダーク表示）

@@ -18,6 +18,7 @@ struct TurboMetaHomeView: View {
     @State private var showQuickVision = false
     @State private var showLiveTranslate = false
     @State private var showBookReader = false
+    @State private var showVoiceMemo = false
 
     var body: some View {
         NavigationView {
@@ -28,9 +29,11 @@ struct TurboMetaHomeView: View {
                 case .translation: showLiveTranslate = true
                 case .leanEat: showLeanEat = true
                 case .book: showBookReader = true
+                case .voiceMemo: showVoiceMemo = true
                 }
             }
             .navigationBarHidden(true)
+            .sheet(isPresented: $showVoiceMemo) { VoiceMemoView() }
             .fullScreenCover(isPresented: $showLiveAI) {
                 LiveAIView(streamViewModel: streamViewModel)
             }

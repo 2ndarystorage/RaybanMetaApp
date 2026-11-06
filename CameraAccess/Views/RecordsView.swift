@@ -7,6 +7,7 @@ import SwiftUI
 
 struct RecordsView: View {
     @State private var selectedTab = 0
+    @State private var showVoiceMemo = false
 
     var body: some View {
         NavigationView {
@@ -59,6 +60,8 @@ struct RecordsView: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
             .navigationTitle("履歴")
+            .toolbar { Button("音声メモ") { showVoiceMemo = true } }
+            .sheet(isPresented: $showVoiceMemo) { VoiceMemoView() }
         }
     }
 }

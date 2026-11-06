@@ -88,6 +88,9 @@
 		A18A90000000000000000002 /* UrbanHomeDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18A90000000000000000001 /* UrbanHomeDashboard.swift */; };
 		A11C10000000000000000001 /* HomeAccessibilitySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11C00000000000000000001 /* HomeAccessibilitySettings.swift */; };
 		A11C10000000000000000002 /* AccessibleHomeDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11C00000000000000000002 /* AccessibleHomeDashboard.swift */; };
+		B01CE1000000000000000001 /* VoiceMemoStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01CE0000000000000000001 /* VoiceMemoStorage.swift */; };
+		B01CE1000000000000000002 /* VoiceMemoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01CE0000000000000000002 /* VoiceMemoModel.swift */; };
+		B01CE1000000000000000003 /* VoiceMemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01CE0000000000000000003 /* VoiceMemoView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -197,6 +200,9 @@
 		A18A90000000000000000001 /* UrbanHomeDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UrbanHomeDashboard.swift; sourceTree = "<group>"; };
 		A11C00000000000000000001 /* HomeAccessibilitySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeAccessibilitySettings.swift; sourceTree = "<group>"; };
 		A11C00000000000000000002 /* AccessibleHomeDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibleHomeDashboard.swift; sourceTree = "<group>"; };
+		B01CE0000000000000000001 /* VoiceMemoStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceMemoStorage.swift; sourceTree = "<group>"; };
+		B01CE0000000000000000002 /* VoiceMemoModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceMemoModel.swift; sourceTree = "<group>"; };
+		B01CE0000000000000000003 /* VoiceMemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceMemoView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -261,6 +267,7 @@
 		4BA57A922EF8227E002EC214 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				B01CE0000000000000000001 /* VoiceMemoStorage.swift */,
 				B00C00000000000000000001 /* BookSummaryService.swift */,
 				4BA57A8D2EF8227E002EC214 /* ConversationStorage.swift */,
 				4BA57A8E2EF8227E002EC214 /* LeanEatService.swift */,
@@ -306,6 +313,7 @@
 		4BA57AA12EF8227E002EC214 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				B01CE0000000000000000002 /* VoiceMemoModel.swift */,
 				B00C00000000000000000002 /* BookReaderModel.swift */,
 				4BA57A9A2EF8227E002EC214 /* MockDeviceKit */,
 				4BA57A9B2EF8227E002EC214 /* DebugMenuViewModel.swift */,
@@ -344,6 +352,7 @@
 		4BA57ABF2EF8227E002EC214 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B01CE0000000000000000003 /* VoiceMemoView.swift */,
 				A11C00000000000000000002 /* AccessibleHomeDashboard.swift */,
 				A11C00000000000000000001 /* HomeAccessibilitySettings.swift */,
 				A18A90000000000000000001 /* UrbanHomeDashboard.swift */,
@@ -556,6 +565,9 @@
 				A11C10000000000000000001 /* HomeAccessibilitySettings.swift in Sources */,
 				A18A90000000000000000002 /* UrbanHomeDashboard.swift in Sources */,
 				B00C10000000000000000003 /* BookReaderView.swift in Sources */,
+				B01CE1000000000000000003 /* VoiceMemoView.swift in Sources */,
+				B01CE1000000000000000002 /* VoiceMemoModel.swift in Sources */,
+				B01CE1000000000000000001 /* VoiceMemoStorage.swift in Sources */,
 				B00C10000000000000000002 /* BookReaderModel.swift in Sources */,
 				B00C10000000000000000001 /* BookSummaryService.swift in Sources */,
 				8FD96B7F2E6F0A9800F56AB1 /* TurboMetaApp.swift in Sources */,

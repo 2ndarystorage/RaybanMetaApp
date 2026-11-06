@@ -22,5 +22,24 @@ struct HomeScreenView: View {
     UrbanWelcomeContent(isConnecting: viewModel.registrationState == .registering) {
       viewModel.connectGlasses()
     }
+    .modifier(VoiceMemoWelcomeEntry())
+  }
+}
+
+struct VoiceMemoWelcomeEntry: ViewModifier {
+  @State private var showVoiceMemo = false
+
+  func body(content: Content) -> some View {
+    content.safeAreaInset(edge: .bottom) {
+      Button { showVoiceMemo = true } label: {
+        Label("音声メモを使う（グラス接続不要）", systemImage: "mic.fill")
+          .font(.body.weight(.semibold))
+          .frame(maxWidth: .infinity, minHeight: 48)
+          .padding(.horizontal)
+      }
+      .buttonStyle(.bordered)
+      .background(.regularMaterial)
+    }
+    .sheet(isPresented: $showVoiceMemo) { VoiceMemoView() }
   }
 }

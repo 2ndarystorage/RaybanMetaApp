@@ -41,6 +41,7 @@ struct TurboMetaApp: App {
         ConfiguredWearablesRoot(wearables: wearables)
       } else {
         UrbanWelcomeContent(isConnecting: false) { showSetupNotice = true }
+          .modifier(VoiceMemoWelcomeEntry())
           .alert("グラスの接続設定が必要です", isPresented: $showSetupNotice) {
             Button("OK", role: .cancel) {}
           } message: {

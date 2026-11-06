@@ -4,12 +4,11 @@ import SwiftUI
 struct AccessibleHomeDashboard: View {
     let isConnected: Bool
     let onSelect: (UrbanHomeAction) -> Void
-    let onDisplaySettings: () -> Void
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                AccessibleHomeHeader(onDisplaySettings: onDisplaySettings)
+                AccessibleHomeHeader()
                 Text("知りたいことを、\n自分のペースで。")
                     .font(.largeTitle.weight(.bold))
                     .fixedSize(horizontal: false, vertical: true)
@@ -29,6 +28,7 @@ struct AccessibleHomeDashboard: View {
                     .accessibilityAddTraits(.isHeader)
                 VStack(spacing: 16) {
                     action(title: "目の前に見えるものを知りたい", detail: "設定した画像認識モードで、グラスで撮影した画像の解析結果を聴けます。", destination: .quickVision)
+                    action(title: "話したことを文字で残したい", detail: "日本語の音声を文字にして、端末に保存します。", destination: .voiceMemo)
                     action(title: "本を要約して聴きたい", detail: "本のページを日本語で要約して聴けます。要約の長さを選べます。", destination: .book)
                     action(title: "会話を訳してほしい", detail: "話していることばを、設定した言語に翻訳します。", destination: .translation)
                     action(title: "食事の内容を知りたい", detail: "食事の写真から、栄養の目安を確認します。", destination: .leanEat)
@@ -97,7 +97,7 @@ struct AccessibleWelcomeContent: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                AccessibleHomeHeader(onDisplaySettings: onDisplaySettings)
+                AccessibleHomeHeader()
                 Text("知りたいことを、\n自分のペースで。")
                     .font(.largeTitle.weight(.bold))
                     .fixedSize(horizontal: false, vertical: true)
@@ -139,6 +139,11 @@ struct AccessibleWelcomeContent: View {
                 Text("この表示は、全盲・ロービジョンなど見え方の違いにかかわらず選べます。文字の大きさはiPhoneの設定に合わせて変わります。VoiceOverを使う場合も、同じボタンから操作できます。")
                     .font(.body)
                     .fixedSize(horizontal: false, vertical: true)
+                Button("設定", action: onDisplaySettings)
+                    .font(.body.weight(.semibold))
+                    .frame(minWidth: 44, minHeight: 48)
+                    .accessibilityHint("ホームの表示を切り替えます。")
+                    .accessibilityIdentifier("welcome.settings")
             }
             .padding(20)
             .frame(maxWidth: 680)
@@ -151,25 +156,10 @@ struct AccessibleWelcomeContent: View {
 }
 
 private struct AccessibleHomeHeader: View {
-    let onDisplaySettings: () -> Void
-
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("RaybanMetaApp")
-                .font(.title2.weight(.bold))
-                .accessibilityAddTraits(.isHeader)
-            Button(action: onDisplaySettings) {
-                Label("表示の設定", systemImage: "textformat.size")
-                    .font(.body.weight(.semibold))
-                    .frame(minHeight: 48)
-                    .padding(.horizontal, 16)
-                    .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12))
-                    .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Color.primary, lineWidth: 1))
-            }
-            .buttonStyle(.plain)
-            .accessibilityHint("視覚障害者向けの表示をオン、オフにできます。")
-            .accessibilityIdentifier("home.display.settings")
-        }
+        Text("RaybanMetaApp")
+            .font(.title2.weight(.bold))
+            .accessibilityAddTraits(.isHeader)
     }
 }
 
@@ -196,6 +186,7 @@ extension UrbanHomeAction {
         case .translation: return "translation"
         case .leanEat: return "leanEat"
         case .book: return "book"
+        case .voiceMemo: return "voiceMemo"
         }
     }
 }

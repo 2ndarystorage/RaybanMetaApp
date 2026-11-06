@@ -56,9 +56,9 @@
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Meta AIグラスへの接続にBluetoothを使用します。</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>スマートグラスでのリアルタイム音声会話にマイクを使用します。</string>
+	<string>音声メモの文字起こしと、スマートグラスでの音声会話にマイクを使用します。</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>アプリ起動中にウェイクワードを認識するため音声認識を使用します。</string>
+	<string>話した内容を音声メモとして文字起こしし、ウェイクワードを認識するため音声認識を使用します。</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>スマートグラスで撮影した写真を保存するため写真へのアクセスを使用します。</string>
 	<key>NSSiriUsageDescription</key>

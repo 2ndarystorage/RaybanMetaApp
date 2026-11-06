@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Presentation stays independent of the glasses SDK so the layout can be previewed offline.
 enum UrbanHomeAction {
-    case liveAI, quickVision, translation, leanEat, book
+    case liveAI, quickVision, translation, leanEat, book, voiceMemo
 
     var imageAsset: String {
         switch self {
@@ -11,6 +11,7 @@ enum UrbanHomeAction {
         case .translation: return "UseCaseTranslation"
         case .leanEat: return "UseCaseNutrition"
         case .book: return "UseCaseBook"
+        case .voiceMemo: return "UseCaseConversation"
         }
     }
 }
@@ -47,19 +48,15 @@ struct UrbanHomeDashboard: View {
     let onSelect: (UrbanHomeAction) -> Void
     @Environment(\.dynamicTypeSize) private var typeSize
     @AppStorage(HomeAccessibilitySettings.storageKey) private var accessibilityMode = false
-    @State private var showDisplaySettings = false
 
     var body: some View {
         Group {
             if accessibilityMode {
-                AccessibleHomeDashboard(isConnected: isConnected, onSelect: onSelect) {
-                    showDisplaySettings = true
-                }
+                AccessibleHomeDashboard(isConnected: isConnected, onSelect: onSelect)
             } else {
                 standardBody
             }
         }
-        .sheet(isPresented: $showDisplaySettings) { HomeDisplaySettingsSheet() }
     }
 
     private var standardBody: some View {
@@ -82,7 +79,7 @@ struct UrbanHomeDashboard: View {
                         Text("日常を、もっと自由に。")
                             .font(.system(.subheadline, weight: .medium))
                         Spacer()
-                        Text("EXPLORE / 04")
+                        Text("EXPLORE / 05")
                             .font(.system(size: 9, weight: .medium, design: .monospaced))
                             .tracking(1)
                             .foregroundStyle(UrbanPalette.muted)
@@ -92,9 +89,9 @@ struct UrbanHomeDashboard: View {
                         tool("外国語をリアルタイムで翻訳する", detail: "会話を、その場で翻訳。", category: "TRANSLATE", number: "03", action: .translation)
                         tool("食事を記録する", detail: "ひと皿から、健やかに。", category: "LEAN EAT", number: "04", action: .leanEat)
                         tool("本の要約を聴く", detail: "一ページを、短い音声に。", category: "BOOK READER", number: "05", action: .book)
+                        tool("話したことをメモする", detail: "自分のことばを、文字で残す。", category: "VOICE MEMO", number: "06", action: .voiceMemo)
                     }
                 }
-                readingCard
                 HStack(spacing: 12) {
                     GlassesSignature().stroke(UrbanPalette.muted, style: StrokeStyle(lineWidth: 1.2, lineCap: .round, lineJoin: .round))
                         .frame(width: 36, height: 15)
@@ -120,7 +117,7 @@ struct UrbanHomeDashboard: View {
         Button { onSelect(.liveAI) } label: {
             ZStack(alignment: .bottomLeading) {
                 GeometryReader { geometry in
-                    Image(UrbanHomeAction.liveAI.imageAsset)
+                    Image("UrbanGlassesHero")
                         .resizable().scaledToFill()
                         .frame(width: geometry.size.width, height: geometry.size.height)
                         .clipped()
@@ -208,38 +205,7 @@ struct UrbanHomeDashboard: View {
         .accessibilityLabel("\(title)。\(detail)")
     }
 
-    private var readingCard: some View {
-        Button { onSelect(.book) } label: {
-            ZStack(alignment: .bottomLeading) {
-                GeometryReader { geometry in
-                    Image(UrbanHomeAction.book.imageAsset)
-                        .resizable().scaledToFill()
-                        .frame(width: geometry.size.width, height: geometry.size.height)
-                        .clipped()
-                }
-                LinearGradient(colors: [.black.opacity(0.05), .black.opacity(0.75)], startPoint: .top, endPoint: .bottom)
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("A MOMENT TO READ")
-                        .font(.system(size: 8, weight: .medium, design: .monospaced))
-                        .tracking(1.6)
-                    HStack(alignment: .bottom) {
-                        Text("読む時間を、\n聴く時間に。")
-                            .font(.system(.title3, weight: .medium))
-                            .tracking(-0.6)
-                            .multilineTextAlignment(.leading)
-                        Spacer()
-                        Image(systemName: "arrow.up.right")
-                    }
-                }
-                .foregroundStyle(.white)
-                .padding(20)
-            }
-            .frame(height: typeSize.isAccessibilitySize ? 320 : 210)
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        }
-        .buttonStyle(UrbanPressStyle())
-        .accessibilityLabel("本の要約を開く。読む時間を、聴く時間に")
-    }
+
 }
 
 private struct UrbanBrandHeader: View {
