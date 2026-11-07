@@ -35,6 +35,8 @@ class TTSService: NSObject, ObservableObject {
 
     private var currentTask: Task<Void, Never>?
     private var systemSynthesizer: AVSpeechSynthesizer?
+    private var streamingSynthesizer: AVSpeechSynthesizer?
+    private var pendingSentences = 0
 
     private override init() {
         super.init()
@@ -137,7 +139,7 @@ class TTSService: NSObject, ObservableObject {
             isSpeaking = true
             currentTask = Task {
                 await fallbackToSystemTTS(text: text)
-                isSpeaking = false
+                if !Task.isCancelled { isSpeaking = false }
             }
             return
         }
@@ -150,7 +152,7 @@ class TTSService: NSObject, ObservableObject {
             isSpeaking = true
             currentTask = Task {
                 await fallbackToSystemTTS(text: text)
-                isSpeaking = false
+                if !Task.isCancelled { isSpeaking = false }
             }
             return
         }
@@ -181,7 +183,7 @@ class TTSService: NSObject, ObservableObject {
         isSpeaking = true
         currentTask = Task {
             await fallbackToSystemTTS(text: text)
-            isSpeaking = false
+            if !Task.isCancelled { isSpeaking = false }
         }
     }
 
@@ -190,8 +192,41 @@ class TTSService: NSObject, ObservableObject {
         currentTask?.cancel()
         currentTask = nil
         stopPlaybackEngine()
+        systemSynthesizer?.stopSpeaking(at: .immediate)
+        systemSynthesizer = nil
+        streamingSynthesizer?.stopSpeaking(at: .immediate)
+        streamingSynthesizer = nil
+        pendingSentences = 0
         isSpeaking = false
         print("🔊 [TTS] Stopped")
+    }
+
+    /// Queue complete sentences without cancelling speech already in progress.
+    func beginSystemSpeechStream() throws {
+        stop()
+        let audio = AVAudioSession.sharedInstance()
+        try audio.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+        try audio.setActive(true)
+        let synthesizer = AVSpeechSynthesizer()
+        synthesizer.delegate = self
+        streamingSynthesizer = synthesizer
+    }
+
+    func enqueueSystemSentence(_ text: String) {
+        guard let synthesizer = streamingSynthesizer,
+              !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        let language: String
+        switch LanguageManager.staticApiLanguageCode {
+        case "Chinese": language = "zh-CN"
+        case "Japanese": language = "ja-JP"
+        default: language = "en-US"
+        }
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.voice = AVSpeechSynthesisVoice(language: language)
+        utterance.rate = AVSpeechUtteranceDefaultSpeechRate
+        pendingSentences += 1
+        isSpeaking = true
+        synthesizer.speak(utterance)
     }
 
     // MARK: - Private Methods
@@ -374,6 +409,7 @@ class TTSService: NSObject, ObservableObject {
 
     /// 回退到系统 TTS
     private func fallbackToSystemTTS(text: String) async {
+        guard !Task.isCancelled else { return }
         print("🔊 [TTS] Falling back to system TTS")
 
         // 系统 TTS 使用 Playback 模式（不是 PlayAndRecord）
@@ -414,14 +450,24 @@ class TTSService: NSObject, ObservableObject {
         while synthesizer.isSpeaking {
             if Task.isCancelled {
                 synthesizer.stopSpeaking(at: .immediate)
-                systemSynthesizer = nil
+                if systemSynthesizer === synthesizer { systemSynthesizer = nil }
                 return
             }
             try? await Task.sleep(nanoseconds: 100_000_000)
         }
 
         print("✅ [TTS] System TTS finished")
-        systemSynthesizer = nil
+        if systemSynthesizer === synthesizer { systemSynthesizer = nil }
+    }
+}
+
+extension TTSService: AVSpeechSynthesizerDelegate {
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        Task { @MainActor [weak self] in
+            guard let self, self.streamingSynthesizer === synthesizer else { return }
+            self.pendingSentences = max(0, self.pendingSentences - 1)
+            self.isSpeaking = self.pendingSentences > 0
+        }
     }
 }
 

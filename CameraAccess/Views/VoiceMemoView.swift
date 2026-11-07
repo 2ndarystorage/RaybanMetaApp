@@ -130,7 +130,7 @@ struct VoiceMemoView: View {
         case .idle: return "文字起こしを開始"
         case .preparing: return "準備をキャンセル"
         case .recording: return "停止して保存"
-        case .finishing: return "最後のことばを保存しています"
+        case .finishing: return "最後のことばを確認しています"
         }
     }
 }

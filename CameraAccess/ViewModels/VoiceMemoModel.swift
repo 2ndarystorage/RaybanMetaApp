@@ -135,6 +135,7 @@ final class VoiceMemoModel: ObservableObject {
         phase = .finishing
         timer?.cancel()
         stopInput()
+        save()
         request?.endAudio()
         finishTimer = Task { [weak self] in
             try? await Task.sleep(nanoseconds: 2_000_000_000)

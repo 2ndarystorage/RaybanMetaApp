@@ -56,10 +56,6 @@ struct QuickVisionView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("close".localized) {
-                        Task {
-                            tts.stop() // 停止播报
-                            await quickVisionManager.stopStream() // 停止视频流
-                        }
                         dismiss()
                     }
                     .foregroundColor(.white)
@@ -77,6 +73,9 @@ struct QuickVisionView: View {
             .toolbarBackground(.hidden, for: .navigationBar)
         }
         .preferredColorScheme(.dark)
+        .onDisappear {
+            Task { await quickVisionManager.stopStream() }
+        }
         .task {
             // 确保 streamViewModel 已设置
             quickVisionManager.setStreamViewModel(streamViewModel)
@@ -186,16 +185,16 @@ struct QuickVisionView: View {
             if let result = quickVisionManager.lastResult {
                 VStack(alignment: .leading, spacing: AppSpacing.sm) {
                     HStack {
-                        Image(systemName: "checkmark.circle.fill")
+                        Image(systemName: quickVisionManager.isProcessing ? "ellipsis.circle" : "checkmark.circle.fill")
                             .foregroundColor(.green)
-                        Text("quickvision.result".localized)
+                        Text(quickVisionManager.isProcessing ? "説明を受信しています" : "quickvision.result".localized)
                             .font(AppTypography.headline)
                             .foregroundColor(.white)
                         Spacer()
 
                         // 重新播报按钮
                         Button {
-                            tts.speak(result)
+                            tts.speakUsingSystemVoice(result)
                         } label: {
                             Image(systemName: tts.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2")
                                 .foregroundColor(.white)
@@ -203,6 +202,7 @@ struct QuickVisionView: View {
                                 .background(Color.white.opacity(0.2))
                                 .cornerRadius(AppCornerRadius.sm)
                         }
+                        .disabled(quickVisionManager.isProcessing)
                     }
 
                     Text(result)

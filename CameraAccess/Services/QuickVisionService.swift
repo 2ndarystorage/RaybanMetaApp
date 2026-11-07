@@ -11,9 +11,11 @@ class QuickVisionService {
     private let apiKey: String
     private let baseURL: String
     private let model: String
+    private let session: URLSession
 
     /// Initialize with explicit configuration
-    init(apiKey: String, baseURL: String? = nil, model: String? = nil) {
+    init(apiKey: String, baseURL: String? = nil, model: String? = nil, session: URLSession = .shared) {
+        self.session = session
         self.apiKey = apiKey
         self.baseURL = baseURL ?? VisionAPIConfig.baseURL
         self.model = model ?? VisionAPIConfig.model
@@ -33,6 +35,7 @@ class QuickVisionService {
     struct ChatCompletionRequest: Codable {
         let model: String
         let messages: [Message]
+        var stream = true
 
         struct Message: Codable {
             let role: String
@@ -63,6 +66,7 @@ class QuickVisionService {
         struct Choice: Codable {
             let message: Message?
             let delta: Delta?
+            let finish_reason: String?
 
             struct Message: Codable {
                 let content: String?
@@ -75,7 +79,7 @@ class QuickVisionService {
 
         struct APIError: Codable {
             let message: String?
-            let code: Int?
+
         }
     }
 
@@ -86,12 +90,17 @@ class QuickVisionService {
     ///   - image: 要识别的图片
     ///   - customPrompt: 自定义提示词（可选，如果为 nil 则使用当前模式的提示词）
     /// - Returns: 简洁的描述文本，适合 TTS 播报
-    func analyzeImage(_ image: UIImage, customPrompt: String? = nil) async throws -> String {
+    func analyzeImage(_ image: UIImage, customPrompt: String? = nil,
+                      purpose: ImageUploadPreparation.Purpose = .document,
+                      onDelta: @escaping @MainActor (String) -> Void = { _ in }) async throws -> String {
         guard !apiKey.isEmpty else {
             throw QuickVisionError.apiError(statusCode: 401, message: "設定でOpenAI APIキーを登録してください")
         }
-        // Convert image to base64
-        guard let imageData = image.jpegData(compressionQuality: 0.7) else {
+        let prepared = await Task.detached(priority: .userInitiated) {
+            ImageUploadPreparation.jpeg(image, purpose: purpose)
+        }.value
+        try Task.checkCancellation()
+        guard let imageData = prepared else {
             throw QuickVisionError.invalidImage
         }
 
@@ -124,86 +133,79 @@ class QuickVisionService {
         )
 
         // Make API call
-        return try await makeRequest(request)
+        return try await makeRequest(request, onDelta: onDelta)
     }
 
     // MARK: - Private Methods
 
-    private func makeRequest(_ request: ChatCompletionRequest) async throws -> String {
+    private func makeRequest(_ request: ChatCompletionRequest,
+                             onDelta: @escaping @MainActor (String) -> Void) async throws -> String {
         guard let url = URL(string: "\(baseURL)/chat/completions") else {
             throw QuickVisionError.invalidResponse
         }
-
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
-
-        // Set headers based on provider
-        let headers = VisionAPIConfig.headers(with: apiKey)
-        for (key, value) in headers {
+        for (key, value) in VisionAPIConfig.headers(with: apiKey) {
             urlRequest.setValue(value, forHTTPHeaderField: key)
         }
-
-        urlRequest.timeoutInterval = 60 // 60秒超时（OpenRouter 可能需要更长时间）
-
-        let encoder = JSONEncoder()
-        urlRequest.httpBody = try encoder.encode(request)
-
-        print("📡 [QuickVision] Sending request to OpenAI \(model)...")
-        print("📡 [QuickVision] URL: \(url.absoluteString)")
-
-        let (data, response) = try await URLSession.shared.data(for: urlRequest)
-
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw QuickVisionError.invalidResponse
+        urlRequest.setValue("text/event-stream", forHTTPHeaderField: "Accept")
+        urlRequest.timeoutInterval = 60
+        urlRequest.httpBody = try JSONEncoder().encode(request)
+        let (bytes, response) = try await session.bytes(for: urlRequest)
+        guard let http = response as? HTTPURLResponse else { throw QuickVisionError.invalidResponse }
+        guard (200...299).contains(http.statusCode) else {
+            throw QuickVisionError.apiError(statusCode: http.statusCode, message: "画像認識との通信に失敗しました")
         }
-
-        // Log raw response for debugging
-        let rawResponse = String(data: data, encoding: .utf8) ?? "Unable to decode"
-        print("📡 [QuickVision] HTTP Status: \(httpResponse.statusCode)")
-        print("📡 [QuickVision] Raw response: \(rawResponse.prefix(500))")
-
-        guard httpResponse.statusCode == 200 else {
-            let errorMessage = String(data: data, encoding: .utf8) ?? "Unknown error"
-            print("❌ [QuickVision] API error: \(httpResponse.statusCode) - \(errorMessage)")
-            throw QuickVisionError.apiError(statusCode: httpResponse.statusCode, message: errorMessage)
+        // Some compatible endpoints send a single JSON response even with stream enabled.
+        if http.value(forHTTPHeaderField: "Content-Type")?.contains("application/json") == true {
+            var data = Data()
+            for try await byte in bytes { try Task.checkCancellation(); data.append(byte) }
+            let completion = try JSONDecoder().decode(ChatCompletionResponse.self, from: data)
+            if let error = completion.error {
+                throw QuickVisionError.apiError(statusCode: -1, message: error.message ?? "画像認識に失敗しました")
+            }
+            guard let text = completion.choices?.first?.message?.content,
+                  !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                throw QuickVisionError.emptyResponse
+            }
+            try Task.checkCancellation()
+            await onDelta(text)
+            return text.trimmingCharacters(in: .whitespacesAndNewlines)
         }
-
-        let decoder = JSONDecoder()
-        let apiResponse: ChatCompletionResponse
-
-        do {
-            apiResponse = try decoder.decode(ChatCompletionResponse.self, from: data)
-        } catch {
-            print("❌ [QuickVision] JSON decode error: \(error)")
-            throw QuickVisionError.invalidResponse
+        var events = VisionEventBuffer()
+        var text = ""
+        var completed = false
+        func consume(_ event: String) async throws {
+            try Task.checkCancellation()
+            if event == "[DONE]" { completed = true; return }
+            let chunk = try JSONDecoder().decode(ChatCompletionResponse.self, from: Data(event.utf8))
+            if let error = chunk.error {
+                throw QuickVisionError.apiError(statusCode: -1, message: error.message ?? "画像認識に失敗しました")
+            }
+            guard let choice = chunk.choices?.first else { return }
+            if let delta = choice.delta?.content, !delta.isEmpty {
+                text += delta
+                await onDelta(delta)
+            }
+            if let reason = choice.finish_reason {
+                guard reason == "stop" else { throw QuickVisionError.invalidResponse }
+                completed = true
+            }
         }
-
-        // Check for API error in response body
-        if let apiError = apiResponse.error {
-            let errorMsg = apiError.message ?? "Unknown API error"
-            print("❌ [QuickVision] API returned error: \(errorMsg)")
-            throw QuickVisionError.apiError(statusCode: apiError.code ?? -1, message: errorMsg)
+        for try await line in bytes.lines {
+            if let event = events.append(line) {
+                try await consume(event)
+                if event == "[DONE]" { break }
+            }
         }
-
-        // Get content from choices
-        guard let choices = apiResponse.choices, let firstChoice = choices.first else {
-            print("❌ [QuickVision] No choices in response")
-            throw QuickVisionError.emptyResponse
-        }
-
-        // Try message.content first, then delta.content
-        let content = firstChoice.message?.content ?? firstChoice.delta?.content
-
-        guard let result = content, !result.isEmpty else {
-            print("❌ [QuickVision] Empty content in response")
-            throw QuickVisionError.emptyResponse
-        }
-
-        let trimmedResult = result.trimmingCharacters(in: .whitespacesAndNewlines)
-        print("✅ [QuickVision] Result: \(trimmedResult)")
-
-        return trimmedResult
+        if let event = events.finishEvent() { try await consume(event) }
+        try Task.checkCancellation()
+        guard completed else { throw QuickVisionError.invalidResponse }
+        let result = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !result.isEmpty else { throw QuickVisionError.emptyResponse }
+        return result
     }
+
 }
 
 // MARK: - Error Types

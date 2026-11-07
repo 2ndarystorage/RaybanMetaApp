@@ -280,3 +280,171 @@ final class BookSummaryTests: XCTestCase {
     XCTAssertNil(reader.errorMessage)
   }
 }
+
+private final class LatencyURLProtocol: URLProtocol {
+  static var chunks: [Data] = []
+  static var mimeType = "text/event-stream"
+  static var status = 200
+  private let lock = NSLock()
+  private var stopped = false
+
+  override class func canInit(with request: URLRequest) -> Bool { true }
+  override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+
+  override func startLoading() {
+    let response = HTTPURLResponse(url: request.url!, statusCode: Self.status, httpVersion: nil,
+                                   headerFields: ["Content-Type": Self.mimeType])!
+    client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+    let chunks = Self.chunks
+    if let first = chunks.first { client?.urlProtocol(self, didLoad: first) }
+    DispatchQueue.global().asyncAfter(deadline: .now() + 1.5) { [weak self] in
+      guard let self else { return }
+      self.lock.lock()
+      let stopped = self.stopped
+      self.lock.unlock()
+      guard !stopped else { return }
+      for chunk in chunks.dropFirst() { self.client?.urlProtocol(self, didLoad: chunk) }
+      self.client?.urlProtocolDidFinishLoading(self)
+    }
+  }
+
+  override func stopLoading() {
+    lock.lock()
+    stopped = true
+    lock.unlock()
+  }
+}
+
+@MainActor
+final class LatencyImprovementTests: XCTestCase {
+  private func image(size: CGSize = CGSize(width: 3200, height: 2400), scale: CGFloat = 1) -> UIImage {
+    let format = UIGraphicsImageRendererFormat()
+    format.scale = scale
+    return UIGraphicsImageRenderer(size: size, format: format).image { context in
+      UIColor.white.setFill()
+      context.fill(CGRect(origin: .zero, size: size))
+    }
+  }
+
+  private func service() -> QuickVisionService {
+    let configuration = URLSessionConfiguration.ephemeral
+    configuration.protocolClasses = [LatencyURLProtocol.self]
+    LatencyURLProtocol.mimeType = "text/event-stream"
+    LatencyURLProtocol.status = 200
+    return QuickVisionService(apiKey: "test-key", session: URLSession(configuration: configuration))
+  }
+
+  func testSentencesAcrossChunksPreserveOrderAndRemainder() {
+    var buffer = VisionSentenceBuffer()
+    XCTAssertEqual(buffer.append("目の前に"), [])
+    XCTAssertEqual(buffer.append("机があります。右に椅子"), ["目の前に机があります。"])
+    XCTAssertEqual(buffer.append("があります！\n"), ["右に椅子があります！"])
+    XCTAssertEqual(buffer.append("残りの説明"), [])
+    XCTAssertEqual(buffer.finish(), "残りの説明")
+    XCTAssertNil(buffer.finish())
+  }
+
+  func testEnglishDecimalIsNotSplit() {
+    var buffer = VisionSentenceBuffer()
+    XCTAssertEqual(buffer.append("It costs 3."), [])
+    XCTAssertEqual(buffer.append("50. Next sentence."), ["It costs 3.50."])
+    XCTAssertEqual(buffer.finish(), "Next sentence.")
+  }
+
+  func testSSECommentsAndMultilineData() {
+    var buffer = VisionEventBuffer()
+    XCTAssertNil(buffer.append(": keep-alive"))
+    XCTAssertNil(buffer.append("event: message"))
+    XCTAssertNil(buffer.append("data: {"))
+    XCTAssertEqual(buffer.append("data: \"value\":1}"), "{\n\"value\":1}")
+    XCTAssertNil(buffer.append(""))
+    XCTAssertNil(buffer.finishEvent())
+  }
+
+  func testUploadPixelBoundsAndNoUpscaling() throws {
+    let large = image()
+    let scene = try XCTUnwrap(UIImage(data: XCTUnwrap(ImageUploadPreparation.jpeg(large, purpose: .scene))))
+    let document = try XCTUnwrap(UIImage(data: XCTUnwrap(ImageUploadPreparation.jpeg(large, purpose: .document))))
+    XCTAssertEqual(scene.size, CGSize(width: 1280, height: 960))
+    XCTAssertEqual(document.size, CGSize(width: 2048, height: 1536))
+    let small = try XCTUnwrap(UIImage(data: XCTUnwrap(ImageUploadPreparation.jpeg(image(size: CGSize(width: 100, height: 50), scale: 2), purpose: .scene))))
+    XCTAssertEqual(small.size, CGSize(width: 200, height: 100))
+  }
+
+  func testRotatedImageKeepsPortraitOrientation() throws {
+    let source = image(size: CGSize(width: 2400, height: 3200))
+    let rotated = UIImage(cgImage: try XCTUnwrap(source.cgImage), scale: 1, orientation: .right)
+    let prepared = try XCTUnwrap(UIImage(data: XCTUnwrap(ImageUploadPreparation.jpeg(rotated, purpose: .scene))))
+    XCTAssertEqual(prepared.size, CGSize(width: 1280, height: 960))
+    XCTAssertEqual(prepared.imageOrientation, .up)
+  }
+
+  func testFirstDeltaArrivesBeforeResponseFinishes() async throws {
+    let service = service()
+    LatencyURLProtocol.chunks = [
+      Data("data: {\"choices\":[{\"delta\":{\"content\":\"机です。\"}}]}\n\n".utf8),
+      Data("data: {\"choices\":[{\"delta\":{\"content\":\"椅子です。\"}}]}\n\ndata: {\"choices\":[{\"delta\":{},\"finish_reason\":\"stop\"}]}\n\ndata: [DONE]\n\n".utf8)
+    ]
+    let firstDelta = expectation(description: "First text before completion")
+    var received: [String] = []
+    var completed = false
+    let task = Task {
+      let result = try await service.analyzeImage(image(size: CGSize(width: 10, height: 10))) { delta in
+        received.append(delta)
+        if received.count == 1 { firstDelta.fulfill() }
+      }
+      completed = true
+      return result
+    }
+    await fulfillment(of: [firstDelta], timeout: 1.2)
+    XCTAssertFalse(completed)
+    let result = try await task.value
+    XCTAssertEqual(result, "机です。椅子です。")
+    XCTAssertEqual(received, ["机です。", "椅子です。"])
+  }
+
+  func testTruncatedStreamIsNotSuccessful() async throws {
+    let service = service()
+    LatencyURLProtocol.chunks = [Data("data: {\"choices\":[{\"delta\":{\"content\":\"途中\"}}]}\n\n".utf8)]
+    do {
+      _ = try await service.analyzeImage(image(size: CGSize(width: 10, height: 10)))
+      XCTFail("Incomplete response must fail")
+    } catch { XCTAssertTrue(error is QuickVisionError) }
+  }
+
+  func testCancellationDoesNotDeliverLaterDeltas() async throws {
+    let service = service()
+    LatencyURLProtocol.chunks = [
+      Data("data: {\"choices\":[{\"delta\":{\"content\":\"最初。\"}}]}\n\n".utf8),
+      Data("data: {\"choices\":[{\"delta\":{\"content\":\"遅延。\"}}]}\n\ndata: [DONE]\n\n".utf8)
+    ]
+    let firstDelta = expectation(description: "First delta")
+    var received: [String] = []
+    let task = Task {
+      try await service.analyzeImage(image(size: CGSize(width: 10, height: 10))) { delta in
+        received.append(delta)
+        firstDelta.fulfill()
+      }
+    }
+    await fulfillment(of: [firstDelta], timeout: 1.2)
+    task.cancel()
+    do { _ = try await task.value; XCTFail("Expected cancellation") } catch {}
+    XCTAssertEqual(received, ["最初。"])
+  }
+
+  func testFinalMemoTextUpdatesSameSavedRecord() throws {
+    let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: folder) }
+    let storage = VoiceMemoStorage(url: folder.appendingPathComponent("memos.json"))
+    let model = VoiceMemoModel(storage: storage)
+    model.text = "停止時点の文章"
+    XCTAssertTrue(model.save())
+    let first = try XCTUnwrap(storage.load().first)
+    model.text = "停止時点の文章。最後のことば。"
+    XCTAssertTrue(model.save())
+    let records = try storage.load()
+    XCTAssertEqual(records.count, 1)
+    XCTAssertEqual(records.first?.id, first.id)
+    XCTAssertEqual(records.first?.text, model.text)
+  }
+}

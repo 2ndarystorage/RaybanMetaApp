@@ -91,6 +91,8 @@
 		B01CE1000000000000000001 /* VoiceMemoStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01CE0000000000000000001 /* VoiceMemoStorage.swift */; };
 		B01CE1000000000000000002 /* VoiceMemoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01CE0000000000000000002 /* VoiceMemoModel.swift */; };
 		B01CE1000000000000000003 /* VoiceMemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01CE0000000000000000003 /* VoiceMemoView.swift */; };
+		FA5710000000000000000001 /* ImageUploadPreparation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5700000000000000000001 /* ImageUploadPreparation.swift */; };
+		FA5710000000000000000002 /* VisionStreaming.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5700000000000000000002 /* VisionStreaming.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -203,6 +205,8 @@
 		B01CE0000000000000000001 /* VoiceMemoStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceMemoStorage.swift; sourceTree = "<group>"; };
 		B01CE0000000000000000002 /* VoiceMemoModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceMemoModel.swift; sourceTree = "<group>"; };
 		B01CE0000000000000000003 /* VoiceMemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceMemoView.swift; sourceTree = "<group>"; };
+		FA5700000000000000000001 /* ImageUploadPreparation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUploadPreparation.swift; sourceTree = "<group>"; };
+		FA5700000000000000000002 /* VisionStreaming.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionStreaming.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -267,6 +271,8 @@
 		4BA57A922EF8227E002EC214 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				FA5700000000000000000002 /* VisionStreaming.swift */,
+				FA5700000000000000000001 /* ImageUploadPreparation.swift */,
 				B01CE0000000000000000001 /* VoiceMemoStorage.swift */,
 				B00C00000000000000000001 /* BookSummaryService.swift */,
 				4BA57A8D2EF8227E002EC214 /* ConversationStorage.swift */,
@@ -565,6 +571,8 @@
 				A11C10000000000000000001 /* HomeAccessibilitySettings.swift in Sources */,
 				A18A90000000000000000002 /* UrbanHomeDashboard.swift in Sources */,
 				B00C10000000000000000003 /* BookReaderView.swift in Sources */,
+				FA5710000000000000000002 /* VisionStreaming.swift in Sources */,
+				FA5710000000000000000001 /* ImageUploadPreparation.swift in Sources */,
 				B01CE1000000000000000003 /* VoiceMemoView.swift in Sources */,
 				B01CE1000000000000000002 /* VoiceMemoModel.swift in Sources */,
 				B01CE1000000000000000001 /* VoiceMemoStorage.swift in Sources */,

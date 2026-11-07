@@ -255,6 +255,8 @@ class QuickVisionManager: ObservableObject {
     // 公开 streamViewModel 用于 Intent 检查初始化状态
     private(set) var streamViewModel: StreamSessionViewModel?
     private let tts = TTSService.shared
+    private var activeRequestID: UUID?
+    private var analysisTask: Task<String, Error>?
 
     private init() {
         // 监听 Intent 触发
@@ -294,7 +296,16 @@ class QuickVisionManager: ObservableObject {
             return
         }
 
+        let requestID = UUID()
+        activeRequestID = requestID
         isProcessing = true
+        defer {
+            if activeRequestID == requestID {
+                isProcessing = false
+                activeRequestID = nil
+                analysisTask = nil
+            }
+        }
         errorMessage = nil
         lastResult = nil
         lastImage = nil
@@ -330,6 +341,7 @@ class QuickVisionManager: ObservableObject {
                 var streamWait = 0
                 while streamViewModel.streamingStatus != .streaming && streamWait < 50 {
                     try await Task.sleep(nanoseconds: 100_000_000) // 0.1秒
+                    try checkRequest(requestID)
                     streamWait += 1
                 }
 
@@ -339,8 +351,11 @@ class QuickVisionManager: ObservableObject {
                 }
             }
 
+            try checkRequest(requestID)
+
             // 2. 等待流稳定
             try await Task.sleep(nanoseconds: 500_000_000) // 0.5秒
+            try checkRequest(requestID)
 
             // 3. 清除之前的照片，然后拍照
             streamViewModel.dismissPhotoPreview()
@@ -351,6 +366,7 @@ class QuickVisionManager: ObservableObject {
             var photoWait = 0
             while streamViewModel.capturedPhoto == nil && photoWait < 30 {
                 try await Task.sleep(nanoseconds: 100_000_000) // 0.1秒
+                try checkRequest(requestID)
                 photoWait += 1
             }
 
@@ -367,6 +383,7 @@ class QuickVisionManager: ObservableObject {
                 throw QuickVisionError.frameTimeout
             }
 
+            try checkRequest(requestID)
             print("📸 [QuickVision] Photo captured: \(photo.size.width)x\(photo.size.height)")
 
             // 保存图片用于历史记录
@@ -379,34 +396,56 @@ class QuickVisionManager: ObservableObject {
             print("🛑 [QuickVision] Stopping stream after capture")
             await streamViewModel.stopSession()
 
-            // 7. 调用识图 API
+            try checkRequest(requestID)
+            try tts.beginSystemSpeechStream()
             let service = QuickVisionService(apiKey: apiKey)
-            let result = try await service.analyzeImage(photo, customPrompt: prompt)
-
-            // 8. 保存结果
+            let purpose: ImageUploadPreparation.Purpose
+            switch mode {
+            case .standard, .blind, .encyclopedia: purpose = .scene
+            case .reading, .translate, .health, .custom: purpose = .document
+            }
+            var sentences = VisionSentenceBuffer()
+            let task = Task {
+                try await service.analyzeImage(photo, customPrompt: prompt, purpose: purpose) { [weak self] delta in
+                    guard let self, self.activeRequestID == requestID else { return }
+                    self.lastResult = (self.lastResult ?? "") + delta
+                    for sentence in sentences.append(delta) {
+                        self.tts.enqueueSystemSentence(sentence)
+                    }
+                }
+            }
+            analysisTask = task
+            let result = try await withTaskCancellationHandler {
+                try await task.value
+            } onCancel: {
+                task.cancel()
+            }
+            try checkRequest(requestID)
+            if let remainder = sentences.finish() { tts.enqueueSystemSentence(remainder) }
             lastResult = result
-
-            // 9. 保存到历史记录
             saveToHistory(mode: mode, prompt: prompt, result: result, image: photo)
 
-            // 10. TTS 播报结果
-            tts.speakUsingSystemVoice(result)
-
-            print("✅ [QuickVision] Complete: \(result)")
-
+        } catch is CancellationError {
+            if activeRequestID == requestID { tts.stop() }
         } catch let error as QuickVisionError {
+            guard activeRequestID == requestID else { return }
             errorMessage = error.localizedDescription
             print("❌ [QuickVision] QuickVisionError: \(error)")
             tts.speakUsingSystemVoice(error.localizedDescription)
             await streamViewModel.stopSession()
         } catch {
+            guard activeRequestID == requestID else { return }
             errorMessage = error.localizedDescription
             print("❌ [QuickVision] Error: \(error)")
             tts.speakUsingSystemVoice("認識に失敗しました。\(error.localizedDescription)")
             await streamViewModel.stopSession()
         }
 
-        isProcessing = false
+    }
+
+    private func checkRequest(_ id: UUID) throws {
+        try Task.checkCancellation()
+        guard activeRequestID == id else { throw CancellationError() }
     }
 
     /// 执行快速识图（使用当前设置的模式）
@@ -433,6 +472,11 @@ class QuickVisionManager: ObservableObject {
 
     /// 停止视频流（在页面关闭时调用）
     func stopStream() async {
+        activeRequestID = nil
+        analysisTask?.cancel()
+        analysisTask = nil
+        isProcessing = false
+        tts.stop()
         await streamViewModel?.stopSession()
     }
 

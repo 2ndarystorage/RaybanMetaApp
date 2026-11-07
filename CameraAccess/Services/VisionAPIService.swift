@@ -74,7 +74,11 @@ struct VisionAPIService {
     /// Analyze image and get description
     func analyzeImage(_ image: UIImage, prompt: String = "画像には何が写っていますか？日本語で説明してください。") async throws -> String {
         // Convert image to base64
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+        let prepared = await Task.detached(priority: .userInitiated) {
+            ImageUploadPreparation.jpeg(image, purpose: .document)
+        }.value
+        try Task.checkCancellation()
+        guard let imageData = prepared else {
             throw VisionAPIError.invalidImage
         }
 

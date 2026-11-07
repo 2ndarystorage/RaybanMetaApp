@@ -37,7 +37,7 @@ struct BookSummaryService: Sendable {
   nonisolated func summarize(image: UIImage, apiKey: String, limit: Int) async throws -> String {
     guard (50...1000).contains(limit) else { throw Failure("文字数は50〜1000で指定してください。") }
     let jpeg = await Task.detached(priority: .userInitiated) {
-      image.jpegData(compressionQuality: 0.9)
+      ImageUploadPreparation.jpeg(image, purpose: .document)
     }.value
     try Task.checkCancellation()
     guard let jpeg else { throw Failure("画像を変換できませんでした。") }
